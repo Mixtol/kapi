@@ -1,0 +1,9 @@
+# user roles
+MainAdmin : 9dd65e51-3b04-48f5-b132-c08bf9ad17d6
+SharedRole : ce9f7d9a-7a2e-48d8-acab-3432acbb0f4f
+TenantAdmin : b61cfd50-87c9-45d9-940d-5a6f5d4292a7
+AccessToCII : caa7c266-8149-442a-a2ba-e60961f1d6e9
+AccessToNcircc : 2448f469-a15e-46db-b989-6182616ffeba
+Analyst1Line : 309ed903-99f0-462e-a43d-6edb7281f830
+Analyst2Line : e57fae66-ec6d-46b9-8d9d-a29efbe04ca2
+JuniorAnalyst : 0e342bff-9fd6-47c9-9bf8-c58be4302acc

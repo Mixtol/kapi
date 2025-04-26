@@ -1,0 +1,92 @@
+# resource JSON
+{
+  "tenantID": "00000000-0000-0000-0000-000000000000",
+  "kind": "storage",
+  "name": "storage_resource_example",
+  "description": "Example of storage resource",
+  "payload": {
+    "id": "",
+    "name": "storage_config_example",
+    "override": "<merge_tree><parts_to_delay_insert>600</parts_to_delay_insert><parts_to_throw_insert>1100</parts_to_throw_insert></merge_tree>",
+    "defaultRetention": 30,
+    "defaultColdRetention": 1,
+    "auditRetention": 365,
+    "auditColdRetention": 0,
+    "bufferSize": 33554432,
+    "flushInterval": 5,
+    "diskBufferDisabled": false,
+    "diskBufferSizeLimit": 5368709120,
+    "spaces": [
+      {
+        "id": "",
+        "name": "space_example",
+        "retention": 0,
+        "coldRetention": 0,
+        "filter": {
+          "id": "",
+          "name": "filter_example",
+          "root": {
+            "group": false,
+            "or": false,
+            "not": false,
+            "conditions": null,
+            "leftKind": "",
+            "leftEvent": "",
+            "leftID": "",
+            "leftField": "",
+            "leftKeys": null,
+            "leftKeyMap": null,
+            "leftListItemIdx": 0,
+            "leftTICategory": "",
+            "leftTIField": "",
+            "leftShared": false,
+            "op": "",
+            "rightKind": "",
+            "rightEvent": "",
+            "rightID": "",
+            "rightField": "",
+            "rightKeys": null,
+            "rightKeyMap": null,
+            "rightListItemIdx": 0,
+            "rightTICategory": "",
+            "rightTIField": "",
+            "rightShared": false,
+            "constant": null,
+            "list": null,
+            "ignoreCase": false,
+            "checkTypes": false,
+            "filter": null,
+            "vulns": null
+          },
+          "code": "DeviceEventClassID = ['4624', '4768', '4769', '4770'] AND NOT DestinationUserName endswith '$'",
+          "shared": false,
+          "currentTab": 0
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "fqdn": "kuma.example",
+        "shard": 1,
+        "replica": 1,
+        "keeper": 1
+      }
+    ],
+    "disks": [
+      {
+        "type": "local",
+        "name": "disk_1",
+        "path": "/disk_1_path/",
+        "endpoint": ""
+      },
+      {
+        "type": "hdfs",
+        "name": "disk_2",
+        "endpoint": "hdfs://hdfs1:9000/clickhouse/"
+      }
+    ],
+    "writeLocal": false,
+    "debug": false,
+    "shared": false
+  }
+}

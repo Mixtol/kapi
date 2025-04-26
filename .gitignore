@@ -1,0 +1,15 @@
+# Files
+*.iml
+*.xml
+*.csv
+*.ini
+*.json
+*.log
+*.idea
+*env
+config.py
+local_test.py
+test.cert
+# Folders
+__pycache__/
+kapi.egg-info/

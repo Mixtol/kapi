@@ -1,0 +1,67 @@
+
+
+# Example of Assets list with one asset for Create/Import method
+[
+    {
+      "aiscore": 0.1,
+      "aistatus": "string",
+      "archived": true,
+      "customFields": [
+        {
+          "id": "string",
+          "name": "string",
+          "value": "string"
+        }
+      ],
+      "fqdn": [
+        "string"
+      ],
+      "ipAddresses": [
+        "string"
+      ],
+      "kicsVulns": [
+        {
+          "category": "string",
+          "cveID": "string",
+          "cvss": 0.1,
+          "description": "string",
+          "descriptionUrl": "string",
+          "id": 9007199254740991,
+          "name": "string",
+          "severity": 9007199254740991
+        }
+      ],
+      "macAddresses": [
+        "string"
+      ],
+      "name": "string",
+      "os": {
+        "name": "string",
+        "version": "string"
+      },
+      "owner": "string",
+      "software": [
+        {
+          "name": "string",
+          "vendor": "string",
+          "version": "string"
+        }
+      ],
+      "vulnerabilities": [
+        {
+          "cve": [
+            "string"
+          ],
+          "descriptionURL": "string",
+          "exploitExists": true,
+          "kasperskyID": "string",
+          "malwareExists": true,
+          "productName": "string",
+          "recommendedMajorPatch": "string",
+          "recommendedMinorPatch": "string",
+          "severity": 9007199254740991,
+          "severityStr": "string"
+        }
+      ]
+    }
+]

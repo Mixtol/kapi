@@ -1,0 +1,16 @@
+
+
+# internal
+{"key":"internal1","record":{"DeviceHostName":"internal_record1"},"count":1}
+{"key":"internal2","record":{"DeviceHostName":"internal_record2"},"count":1}
+
+
+#csv
+key,DeviceHostName
+csv1,csvRecord1
+csv2,csvRecord2
+
+#tsv
+key\tDeviceHostName
+tsv1\ttsvRecord1
+tsv2\ttsvRecord2

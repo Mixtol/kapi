@@ -1,0 +1,16 @@
+
+# add_row data
+{
+  "column_name1": "string",
+  "column_name2": "string",
+  "column_name3": "string"
+}
+
+# update
+key,value
+key1,value1
+key2,value2
+## The thing is thats data must have exac column names as existing dictianary in Kuma
+column0,column1,column2
+key1,value1,1
+key2,value2,2

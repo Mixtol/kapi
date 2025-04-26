@@ -1,0 +1,90 @@
+# task create
+{
+  "name": "",
+  "kind": "retroscan",
+  "userID": "",
+  "correlatorID": "d7ff3197-ae83-46ec-bf3d-1aa7ad696a13",
+  "alertID": "",
+  "search": {
+    "id": "",
+    "tenantIDs": [
+      "6f13af3c-8a6b-4c77-8cec-f0185008bd1f"
+    ],
+    "name": "",
+    "kind": "event",
+    "clusterID": "371aefe9-5849-4cfb-8466-0391ccdd7ca8",
+    "clusterIDs": [
+      "371aefe9-5849-4cfb-8466-0391ccdd7ca8"
+    ],
+    "columns": [
+      {
+        "name": "TenantID",
+        "alias": ""
+      },
+      {
+        "name": "Timestamp",
+        "alias": ""
+      },
+      {
+        "name": "Name",
+        "alias": ""
+      },
+      {
+        "name": "DeviceProduct",
+        "alias": ""
+      },
+      {
+        "name": "DeviceVendor",
+        "alias": ""
+      },
+      {
+        "name": "DestinationAddress",
+        "alias": ""
+      },
+      {
+        "name": "DestinationUserName",
+        "alias": ""
+      },
+      {
+        "name": "Type",
+        "alias": ""
+      }
+    ],
+    "where": null,
+    "period": {
+      "from": "",
+      "to": "",
+      "relative": "now-5m",
+      "relativeTo": "",
+      "column": ""
+    },
+    "sql": "SELECT * FROM 'events' ORDER BY Timestamp DESC LIMIT 250",
+    "displayColumns": null,
+    "default": false,
+    "format": "",
+    "correlatorID": "",
+    "activeListID": "",
+    "contextTableID": "",
+    "shared": false,
+    "limit": 250,
+    "offset": 0,
+    "orderBy": null
+  },
+  "ktl": null,
+  "kata": null,
+  "replay": {
+    "id": "",
+    "ruleIDs": {
+      "fcfef50d-7bbe-4b6c-ba9b-55ad3c5c1d5a": true
+    },
+    "responses": true,
+    "alerts": true
+  },
+  "workers": 0,
+  "tenantIDs": [
+    "6f13af3c-8a6b-4c77-8cec-f0185008bd1f"
+  ],
+  "tenantNames": null,
+  "args": null,
+  "manual": false
+}

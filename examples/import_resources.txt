@@ -1,0 +1,9 @@
+# _import resource "action"
+## The imported resources conflict
+## with the existing resources because they have the same ID.
+{
+    "Resource1UUID": 0,
+    "Resource2UUID": 1,
+    "Resource3UUID": 0,
+    "Resource4UUID": 2
+}
