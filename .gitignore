@@ -12,4 +12,4 @@ local_test.py
 test.cert
 # Folders
 __pycache__/
-kapi.egg-info/
+*.egg-info/
