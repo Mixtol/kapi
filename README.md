@@ -13,7 +13,7 @@ KUMA API Python Client — это библиотека для взаимодей
 ## Установка
 
 ```bash
-pip install kuma
+pip install kuma-api
 ```
 
 ## Инициализация клиента
@@ -21,10 +21,10 @@ pip install kuma
 ### Для работы с публичным REST API
 
 ```python
-import kuma
+import kuma_api
 
 # Инициализация клиента с публичным API
-client = kuma.kapi(
+client = kuma_api.rest(
     base_url="https://kuma.example.com",
     token="YOUR_BEARER_TOKEN",
     verify='core.cert'  # Путь к SSL-сертификату (рекомендуется для продакшена)
@@ -36,7 +36,7 @@ client = kuma.kapi(
 ```python
 
 # Инициализация клиента с приватным API
-client = kuma.kpapi(
+client = kuma_api.private(
     url="https://kuma.example.com",
     login="USER",
     password="PASSWORD"
@@ -52,7 +52,7 @@ client = kuma.kpapi(
 #### Поиск
 ```python
 # Поиск алертов по фильтру
-status, alerts = kuma.alerts.search(
+status, alerts = client.alerts.search(
     status="new",
     from="2023-01-01T00:00:00Z",
     to="2023-01-31T23:59:59Z",
@@ -63,7 +63,7 @@ if status == 200:
         print(f"Found alert: {alert['id']}")
 
 # Поиск с пагинацией (автоматическая загрузка всех страниц)
-status, all_alerts = kuma.alerts.searchp(limit=500, status="assigned")
+status, all_alerts = client.alerts.searchp(limit=500, status="assigned")
 if status == 200:
     print(f"Total alerts found: {len(all_alerts)}")
 ```
@@ -71,7 +71,7 @@ if status == 200:
 #### Управление алертами
 ```python
 # Назначение алерта на пользователя
-assign_status, _ = kuma.alerts.assign(
+assign_status, _ = client.alerts.assign(
     alerts_ids=["123e4567-e89b-12d3-a456-426614174000"],
     user_id="user-123"
 )
@@ -79,7 +79,7 @@ if assign_status == 200:
     print("Alert assigned successfully")
 
 # Закрытие алерта с указанием причины
-close_status, _ = kuma.alerts.close(
+close_status, _ = client.alerts.close(
     alert_id="123e4567-e89b-12d3-a456-426614174000",
     reason="responded"
 )
@@ -87,7 +87,7 @@ if close_status == 200:
     print("Alert closed")
 
 # Добавление комментария к алерту
-comment_status, _ = kuma.alerts.comment(
+comment_status, _ = client.alerts.comment(
     alert_id="123e4567-e89b-12d3-a456-426614174000",
     comment="False positive, ignoring"
 )
@@ -98,7 +98,7 @@ if comment_status == 200:
 #### Работа с связанными событиями
 ```python
 # Связывание события с алертом
-link_status, _ = kuma.alerts.link_event(
+link_status, _ = client.alerts.link_event(
     alert_id="alert-123",
     cluster_id="cluster-456",
     event_id="event-789",
@@ -109,7 +109,7 @@ if link_status == 200:
     print("Event linked")
 
 # Отвязывание события от алерта
-unlink_status, _ = kuma.alerts.unlink_event(
+unlink_status, _ = client.alerts.unlink_event(
     alert_id="alert-123",
     event_id="event-789"
 )
@@ -120,7 +120,7 @@ if unlink_status == 200:
 
 #### Обработка ошибок
 ```python
-status, response = kuma.alerts.get("invalid-id")
+status, response = client.alerts.get("invalid-id")
 if status != 200:
     print(f"Error {status}: {response}")
     # Для 404: "Alert not found"
