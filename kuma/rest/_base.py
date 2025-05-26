@@ -55,12 +55,12 @@ class KumaRestAPIBase:
         Raises:
             ValueError: If URL is malformed
         """
+        self.timeout = timeout
+        self.logger = logger or self._create_default_logger()
+
         self._configure_url(url)
         self._configure_session(token)
         self._configure_ssl(verify)
-
-        self.timeout = timeout
-        self.logger = logger or self._create_default_logger()
 
         self.logger.debug(f"Initialized KUMA API client for {self.url}")
 
