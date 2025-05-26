@@ -13,7 +13,7 @@ _logger = configure_logging()
 _api_version = "v2.1"
 
 
-class KUMAPrivateAPI:
+class KumaPrivateAPI:
     """
     Class for working with the API via port 7220.
 

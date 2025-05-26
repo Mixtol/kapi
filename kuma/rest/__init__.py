@@ -20,26 +20,33 @@ from .users import KumaRestAPIUsers
 class KumaRestAPI(KumaRestAPIBase):
     """Kaspersky Unified Monitoring and Analytics REST API"""
 
-    def __init__(self, url: str, token: str, verify):
-        self.base = KumaRestAPIBase(url, token, verify)
+    def __init__(
+        self,
+        url: str,
+        token: str,
+        verify,
+        timeout: int = KumaRestAPIBase.DEFAULT_TIMEOUT,
+    ):
+        # Инициализируем родительский класс
+        super().__init__(url, token, verify, timeout)
 
         # Основные модули
-        self.active_lists = KumaRestAPIActiveLists(self.base)
-        self.alerts = KumaRestAPIAlerts(self.base)
-        self.assets = KumaRestAPIAssets(self.base)
-        self.context_tables = KumaRestAPIContextTables(self.base)
-        self.dictionaries = KumaRestAPIDictionaries(self.base)
-        self.events = KumaRestAPIEvents(self.base)
-        self.folders = KumaRestAPIFolders(self.base)
-        self.incidents = KumaRestAPIIncidents(self.base)
-        self.reports = KumaRestAPIReports(self.base)
-        self.resources = KumaRestAPIResources(self.base)
-        self.services = KumaRestAPIServices(self.base)
-        self.settings = KumaRestAPISettings(self.base)
-        self.system = KumaRestAPISystem(self.base)
-        self.tasks = KumaRestAPITasks(self.base)
-        self.tenants = KumaRestAPITenants(self.base)
-        self.users = KumaRestAPIUsers(self.base)
+        self.active_lists = KumaRestAPIActiveLists(self)
+        self.alerts = KumaRestAPIAlerts(self)
+        self.assets = KumaRestAPIAssets(self)
+        self.context_tables = KumaRestAPIContextTables(self)
+        self.dictionaries = KumaRestAPIDictionaries(self)
+        self.events = KumaRestAPIEvents(self)
+        self.folders = KumaRestAPIFolders(self)
+        self.incidents = KumaRestAPIIncidents(self)
+        self.reports = KumaRestAPIReports(self)
+        self.resources = KumaRestAPIResources(self)
+        self.services = KumaRestAPIServices(self)
+        self.settings = KumaRestAPISettings(self)
+        self.system = KumaRestAPISystem(self)
+        self.tasks = KumaRestAPITasks(self)
+        self.tenants = KumaRestAPITenants(self)
+        self.users = KumaRestAPIUsers(self)
 
         # Расширенные функции
         #

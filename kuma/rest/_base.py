@@ -105,7 +105,7 @@ class KumaRestAPIBase:
         """Create and configure a default logger instance."""
         logger = logging.getLogger("kapi")
         logger.setLevel(logging.INFO)
-
+        logger.propagate = False
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
