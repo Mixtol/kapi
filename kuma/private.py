@@ -6,7 +6,7 @@ from typing import Any, Tuple
 
 import requests
 
-from .consants import SHARED_TENANT
+from .constants import SHARED_TENANT
 from .logging import configure_logging
 
 _logger = configure_logging()
