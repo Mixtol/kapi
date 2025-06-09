@@ -31,8 +31,8 @@ class KumaRestAPIEvents:
         json = {
             "clusterID": cluster_id,
             "period": {
-                "from": self.format_time(start_time),
-                "to": self.format_time(end_time),
+                "from": self._base.format_time(start_time),
+                "to": self._base.format_time(end_time),
             },
             "emptyFields": empty_fields,
             "rawTimestamps": raw_timestamps,

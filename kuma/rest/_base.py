@@ -85,11 +85,7 @@ class KumaRestAPIBase:
         """Configure the requests session with default headers."""
         self.session = requests.Session()
         self.session.headers.update(
-            {
-                "Authorization": f"Bearer {token}",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            }
+            {"Authorization": f"Bearer {token}", "Accept": "application/json"}
         )
 
     def _configure_ssl(self, verify: bool) -> None:
@@ -154,7 +150,7 @@ class KumaRestAPIBase:
         self.logger.debug(f"Content-Type: {response.headers.get('Content-Type')}")
 
         if response.status_code >= 300:
-            error_msg = f"Bad response {response.status_code}: {response.text[:500]}"
+            error_msg = f"Bad response {response.status_code}: {response.text}"
             self.logger.error(error_msg)
             raise APIError(error_msg, status_code=response.status_code)
 

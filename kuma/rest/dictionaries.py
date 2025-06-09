@@ -116,5 +116,5 @@ class KumaRestAPIDictionaries(KumaRestAPIBase):
             return result
 
         except Exception as e:
-            self._client.logger.exception(f"Unknown exeption: {e}")
+            self._base.logger.exception(f"Unknown exeption: {e}")
             return None
