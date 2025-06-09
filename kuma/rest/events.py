@@ -1,14 +1,16 @@
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIEvents:
+
+class KumaRestAPIEvents(KumaRestAPIModule):
     """
     Методы для работы с событиями
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(
         self,

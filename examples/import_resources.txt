@@ -1,4 +1,4 @@
-# _import resource "action"
+# import_data resource "action"
 ## The imported resources conflict
 ## with the existing resources because they have the same ID.
 {

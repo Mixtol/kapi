@@ -1,13 +1,15 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIResources:
+
+class KumaRestAPIResources(KumaRestAPIModule):
     """
     Методы для работы с алертами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """
@@ -49,7 +51,7 @@ class KumaRestAPIResources:
         json = {"ids": resources_ids, "password": password, "tenantID": tenant_id}
         return self._base._make_request("POST", "resources/export", json=json)
 
-    def _import(
+    def import_data(
         self,
         file_id: str,
         tenant_id: str,
@@ -79,7 +81,7 @@ class KumaRestAPIResources:
         password: str = "Kuma_secret_p@$$w0rd",
     ) -> Tuple[int, List | str]:
         """
-        View content of uploaded resource file, recomended to use before _import
+        View content of uploaded resource file, recomended to use before import_data
         Args:
             file_id* (str): Uploaded file UUID returned by Core
             password (str): File open password

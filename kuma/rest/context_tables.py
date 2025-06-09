@@ -1,13 +1,15 @@
 from typing import Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIContextTables:
+
+class KumaRestAPIContextTables(KumaRestAPIModule):
     """
     Методы для работы с контекстными таблицами (живут на корреляторах)
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def list(
         self,
@@ -45,7 +47,7 @@ class KumaRestAPIContextTables:
             params["contextTableName"] = context_table_name
         return self._base._make_request("GET", "contextTables/export", params=params)
 
-    def _import(
+    def import_data(
         self, correlator_id: str, format: str, data: str, **kwargs
     ) -> tuple[int, str]:
         """

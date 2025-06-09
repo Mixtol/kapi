@@ -1,13 +1,15 @@
 from typing import Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIServices:
+
+class KumaRestAPIServices(KumaRestAPIModule):
     """
     Методы для работы с сервисами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(
         self,

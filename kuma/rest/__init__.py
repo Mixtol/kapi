@@ -20,6 +20,25 @@ from .users import KumaRestAPIUsers
 class KumaRestAPI(KumaRestAPIBase):
     """Kaspersky Unified Monitoring and Analytics REST API"""
 
+    _module_classes = {
+        "active_lists": KumaRestAPIActiveLists,
+        "alerts": KumaRestAPIAlerts,
+        "assets": KumaRestAPIAssets,
+        "context_tables": KumaRestAPIContextTables,
+        "dictionaries": KumaRestAPIDictionaries,
+        "events": KumaRestAPIEvents,
+        "folders": KumaRestAPIFolders,
+        "incidents": KumaRestAPIIncidents,
+        "reports": KumaRestAPIReports,
+        "resources": KumaRestAPIResources,
+        "services": KumaRestAPIServices,
+        "settings": KumaRestAPISettings,
+        "system": KumaRestAPISystem,
+        "tasks": KumaRestAPITasks,
+        "tenants": KumaRestAPITenants,
+        "users": KumaRestAPIUsers,
+    }
+
     def __init__(
         self,
         url: str,
@@ -27,29 +46,22 @@ class KumaRestAPI(KumaRestAPIBase):
         verify,
         timeout: int = KumaRestAPIBase.DEFAULT_TIMEOUT,
     ):
-        # Инициализируем родительский класс
         super().__init__(url, token, verify, timeout)
+        self._modules = {}
 
-        # Основные модули
-        self.active_lists = KumaRestAPIActiveLists(self)
-        self.alerts = KumaRestAPIAlerts(self)
-        self.assets = KumaRestAPIAssets(self)
-        self.context_tables = KumaRestAPIContextTables(self)
-        self.dictionaries = KumaRestAPIDictionaries(self)
-        self.events = KumaRestAPIEvents(self)
-        self.folders = KumaRestAPIFolders(self)
-        self.incidents = KumaRestAPIIncidents(self)
-        self.reports = KumaRestAPIReports(self)
-        self.resources = KumaRestAPIResources(self)
-        self.services = KumaRestAPIServices(self)
-        self.settings = KumaRestAPISettings(self)
-        self.system = KumaRestAPISystem(self)
-        self.tasks = KumaRestAPITasks(self)
-        self.tenants = KumaRestAPITenants(self)
-        self.users = KumaRestAPIUsers(self)
+    def __getattr__(self, name):
+        if name in self._module_classes:
+            if name not in self._modules:
+                self._modules[name] = self._module_classes[name](self)
+            return self._modules[name]
+        raise AttributeError(name)
 
-        # Расширенные функции
-        #
+    def __dir__(self):
+        return sorted(set(super().__dir__()) | set(self._module_classes.keys()))
+
+    # Расширенные функции
+    #
 
 
-__all__ = ["KumaAPI"]
+KumaAPI = KumaRestAPI
+__all__ = ["KumaRestAPI", "KumaAPI"]
