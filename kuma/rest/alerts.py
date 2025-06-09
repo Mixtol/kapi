@@ -1,13 +1,15 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIAlerts:
+
+class KumaRestAPIAlerts(KumaRestAPIModule):
     """
     Методы для работы с алертами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, **kwargs) -> Tuple[int, bytes | str]:
         """
@@ -103,28 +105,6 @@ class KumaRestAPIAlerts:
         """
         json = {"alertID": alert_id, "eventID": event_id}
         return self._base._make_request("POST", f"alerts/unlink-event", json=json)
-
-    ### ext
-
-    def search(self, **kwargs) -> Tuple[int, bytes | str]:
-        """
-        Searching alerts from KUMA
-        Args:
-            page (int): Listing page of result (250 alerts per page)
-            id (List[str]): Search for specified alerts
-            tenantID (str): Tenant filter
-            name (str): Case-insensetine name regex filter
-            timestampField (str): lastSeen|firtsSeen for from-to order
-            from (str): RFC3339 Lower limit
-            to (str): RFC3339 Upper limit
-            status (str): new|assigned|closed|escalated
-            withEvents (str): Include normalized JSON (HEAVY)
-            withAffected (str): Include assets and accounts
-        """
-        params = {
-            **kwargs,
-        }
-        return self._base._make_request("GET", "alerts", params=params)
 
     # Extended
 

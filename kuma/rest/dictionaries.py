@@ -1,16 +1,16 @@
 import os
 from typing import Dict, List, Optional, Tuple, Union
 
-from ._base import APIError, KumaRestAPIBase
+from ._base import APIError, KumaRestAPIModule
 
 
-class KumaRestAPIDictionaries(KumaRestAPIBase):
+class KumaRestAPIDictionaries(KumaRestAPIModule):
     """
     Методы для работы со словарями и таблицами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def content(self, dictionary_id: str) -> Tuple[int, str]:
         """

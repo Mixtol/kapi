@@ -1,13 +1,15 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIAssets:
+
+class KumaRestAPIAssets(KumaRestAPIModule):
     """
     Методы для работы с активами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """Searchin assets by provided filter

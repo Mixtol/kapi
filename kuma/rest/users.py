@@ -1,13 +1,15 @@
 from typing import Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIUsers:
+
+class KumaRestAPIUsers(KumaRestAPIModule):
     """
     Методы для работы с пользователями
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """

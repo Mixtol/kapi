@@ -176,3 +176,10 @@ class KumaRestAPIBase:
         if isinstance(time_value, int):
             return datetime.fromtimestamp(time_value).isoformat()
         return time_value
+
+
+class KumaRestAPIModule:
+    """Base class for REST API modules."""
+
+    def __init__(self, base: "KumaRestAPIBase") -> None:
+        self._base = base
