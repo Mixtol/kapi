@@ -47,7 +47,7 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
             params["contextTableName"] = context_table_name
         return self._base._make_request("GET", "contextTables/export", params=params)
 
-    def _import(
+    def import_data(
         self, correlator_id: str, format: str, data: str, **kwargs
     ) -> tuple[int, str]:
         """
