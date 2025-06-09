@@ -26,7 +26,7 @@ class KumaRestAPITenants(KumaRestAPIModule):
         self,
         name: str,
         eps_limit: int,
-        desciption: str = "",
+        description: str = "",
     ) -> Tuple[int, List | str]:
         """
         Create tenant
@@ -35,5 +35,5 @@ class KumaRestAPITenants(KumaRestAPIModule):
             eps_limit (int): New tenant EPS limit value
             description (str): New tenant description
         """
-        json = {"name": name, "description": desciption, "epsLimit": eps_limit}
+        json = {"name": name, "description": description, "epsLimit": eps_limit}
         return self._base._make_request("POST", "tenants/create", json=json)

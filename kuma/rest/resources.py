@@ -99,7 +99,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
             data (binary): File data or file path
         """
         if isinstance(data, str):
-            with open(data, "rb", uncode="utf-8") as f:
+            with open(data, "rb") as f:
                 data = f.read()
         return self._base._make_request("POST", "resources/upload", data=data)
 

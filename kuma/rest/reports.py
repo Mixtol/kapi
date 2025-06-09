@@ -23,7 +23,5 @@ class KumaRestAPIReports(KumaRestAPIModule):
             order (str): Columns for sorting ('-' is for DESC)
             column** (str): Returned columns of JSON (use several times)
         """
-        params = {
-            "tenantIDs": tenants_ids**kwargs,
-        }
+        params = {"tenantIDs": tenants_ids, **kwargs}
         return self._base._make_request("GET", "reports", params=params)

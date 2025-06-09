@@ -78,6 +78,7 @@ class KumaRestAPIEvents(KumaRestAPIModule):
         adjusted_time = now + offset
         return adjusted_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    @staticmethod
     def epoch_to_iso8601(epoch_time: int) -> str:
         """
         Convert epoch timestamp to ISO 8601 format

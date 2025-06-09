@@ -47,7 +47,7 @@ class KumaRestAPIAssets(KumaRestAPIModule):
         return self._base._make_request("POST", "assets/delete", json=json)
 
     def create(self, assets: List[Dict], tenant_id: str) -> Tuple[int, Dict | str]:
-        """Import\Create assets fron JSON, see examples
+        """Import\Create assets from JSON, see examples
         Args:
             assets (list): List of assets JSON
             tenant_id (str): Assets tenantID

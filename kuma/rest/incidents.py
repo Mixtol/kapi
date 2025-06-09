@@ -63,7 +63,7 @@ class KumaRestAPIIncidents(KumaRestAPIModule):
         self, incident: dict, calc_priority: bool = False
     ) -> Tuple[int, Dict | str]:
         """
-        Creating new incident fron JSON data
+        Creating new incident from JSON data
         Args:
             incident (dict): Incident JSON data, see examples
             calc_priority (str): Copy priority from alert
