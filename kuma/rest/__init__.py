@@ -56,6 +56,9 @@ class KumaRestAPI(KumaRestAPIBase):
             return self._modules[name]
         raise AttributeError(name)
 
+    def __dir__(self):
+        return sorted(set(super().__dir__()) | set(self._module_classes.keys()))
+
     # Расширенные функции
     #
 
