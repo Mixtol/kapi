@@ -20,7 +20,7 @@ class KumaRestAPITenants(KumaRestAPIModule):
             name (str): Case-insensetine name regex filter
             main (bool): Only display 'Main' tenant
         """
-        return self._base._make_request("GET", "tenants", params=kwargs)
+        return self._make_request("GET", "tenants", params=kwargs)
 
     def create(
         self,
@@ -36,4 +36,4 @@ class KumaRestAPITenants(KumaRestAPIModule):
             description (str): New tenant description
         """
         json = {"name": name, "description": description, "epsLimit": eps_limit}
-        return self._base._make_request("POST", "tenants/create", json=json)
+        return self._make_request("POST", "tenants/create", json=json)

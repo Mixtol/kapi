@@ -17,4 +17,4 @@ class KumaRestAPISettings(KumaRestAPIModule):
         Args:
             id (str): Configuration UUID of the custom fields
         """
-        return self._base._make_request("GET", f"settings/id/{id}")
+        return self._make_request("GET", f"settings/id/{id}")

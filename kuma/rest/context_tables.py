@@ -23,7 +23,7 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
         params = {
             "correlatorID": correlator_id,
         }
-        return self._base._make_request("GET", "contextTables", params=params)
+        return self._make_request("GET", "contextTables", params=params)
 
     def export(
         self,
@@ -45,7 +45,7 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
             params["contextTableID"] = context_table_id
         else:
             params["contextTableName"] = context_table_name
-        return self._base._make_request("GET", "contextTables/export", params=params)
+        return self._make_request("GET", "contextTables/export", params=params)
 
     def import_data(
         self, correlator_id: str, format: str, data: str, **kwargs
@@ -61,7 +61,7 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
             data* (str): CT content (see examples)
         """
         params = {"correlatorID": correlator_id, "format": format, **kwargs}
-        return self._base._make_request(
+        return self._make_request(
             "POST",
             "contextTables/import",
             params=params,

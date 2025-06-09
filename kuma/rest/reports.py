@@ -24,4 +24,4 @@ class KumaRestAPIReports(KumaRestAPIModule):
             column** (str): Returned columns of JSON (use several times)
         """
         params = {"tenantIDs": tenants_ids, **kwargs}
-        return self._base._make_request("GET", "reports", params=params)
+        return self._make_request("GET", "reports", params=params)

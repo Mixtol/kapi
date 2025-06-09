@@ -17,4 +17,4 @@ class KumaRestAPITasks(KumaRestAPIModule):
         Args:
             task (dict): PTask body JSON, see examples.
         """
-        return self._base._make_request("POST", "tasks/create", json=task)
+        return self._make_request("POST", "tasks/create", json=task)

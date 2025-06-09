@@ -49,18 +49,83 @@ class KumaRestAPI(KumaRestAPIBase):
         super().__init__(url, token, verify, timeout)
         self._modules = {}
 
-    def __getattr__(self, name):
+    def _get_module(self, name):
         if name in self._module_classes:
             if name not in self._modules:
                 self._modules[name] = self._module_classes[name](self)
             return self._modules[name]
         raise AttributeError(name)
 
+    def __getattr__(self, name):
+        return self._get_module(name)
+
     def __dir__(self):
         return sorted(set(super().__dir__()) | set(self._module_classes.keys()))
 
-    # Расширенные функции
-    #
+    # Explicit module properties for IDE autocompletion
+    @property
+    def active_lists(self) -> KumaRestAPIActiveLists:
+        return self._get_module("active_lists")
+
+    @property
+    def alerts(self) -> KumaRestAPIAlerts:
+        return self._get_module("alerts")
+
+    @property
+    def assets(self) -> KumaRestAPIAssets:
+        return self._get_module("assets")
+
+    @property
+    def context_tables(self) -> KumaRestAPIContextTables:
+        return self._get_module("context_tables")
+
+    @property
+    def dictionaries(self) -> KumaRestAPIDictionaries:
+        return self._get_module("dictionaries")
+
+    @property
+    def events(self) -> KumaRestAPIEvents:
+        return self._get_module("events")
+
+    @property
+    def folders(self) -> KumaRestAPIFolders:
+        return self._get_module("folders")
+
+    @property
+    def incidents(self) -> KumaRestAPIIncidents:
+        return self._get_module("incidents")
+
+    @property
+    def reports(self) -> KumaRestAPIReports:
+        return self._get_module("reports")
+
+    @property
+    def resources(self) -> KumaRestAPIResources:
+        return self._get_module("resources")
+
+    @property
+    def services(self) -> KumaRestAPIServices:
+        return self._get_module("services")
+
+    @property
+    def settings(self) -> KumaRestAPISettings:
+        return self._get_module("settings")
+
+    @property
+    def system(self) -> KumaRestAPISystem:
+        return self._get_module("system")
+
+    @property
+    def tasks(self) -> KumaRestAPITasks:
+        return self._get_module("tasks")
+
+    @property
+    def tenants(self) -> KumaRestAPITenants:
+        return self._get_module("tenants")
+
+    @property
+    def users(self) -> KumaRestAPIUsers:
+        return self._get_module("users")
 
 
 KumaAPI = KumaRestAPI

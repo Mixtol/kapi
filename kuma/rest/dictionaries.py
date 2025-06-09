@@ -18,7 +18,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
         """
         Get dictionary content.
         """
-        return self._base._make_request(
+        return self._make_request(
             "GET",
             "dictionaries",
             params={"dictionaryID": dictionary_id},
@@ -49,7 +49,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
             "overwriteExist": overwrite_exist,
             "needReload": need_reload,
         }
-        return self._base._make_request(
+        return self._make_request(
             "POST", "dictionaries/add_row", params=params, json=data
         )
 
@@ -68,7 +68,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
             "rowKey": row_key,
             "needReload": need_reload,
         }
-        return self._base._make_request("POST", "dictionaries/add_row", params=params)
+        return self._make_request("POST", "dictionaries/add_row", params=params)
 
     def update(
         self, dictionary_id: str, csv: str, need_reload: int = 0
@@ -87,7 +87,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
                     files = {"file": (os.path.basename(csv), file)}
             else:
                 files = {"file": ("data.csv", csv)}
-            return self._base._make_request(
+            return self._make_request(
                 "POST", "dictionaries/update", params=params, files=files
             )
         except IOError as exception:
@@ -118,7 +118,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
             return result
 
         except Exception as e:
-            self._base.logger.exception(f"Unknown exeption: {e}")
+            self.logger.exception(f"Unknown exeption: {e}")
             return None
 
     def to_active_list(

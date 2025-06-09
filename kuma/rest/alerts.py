@@ -30,7 +30,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
         params = {
             **kwargs,
         }
-        return self._base._make_request("GET", "alerts", params=params)
+        return self._make_request("GET", "alerts", params=params)
 
     def assign(self, alerts_ids: list, user_id: str) -> Tuple[int, bytes | str]:
         """Alert assign method
@@ -39,7 +39,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
             user_id (str): User UUID
         """
         json = {"ids": alerts_ids, "userId": user_id}
-        return self._base._make_request("POST", "alerts/assign", json=json)
+        return self._make_request("POST", "alerts/assign", json=json)
 
     def close(self, alert_id: str, reason: str = "responded") -> Tuple[int, Dict]:
         """
@@ -49,7 +49,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
             reason (str): responded|incorrect data|incorrect correlation rule
         """
         json = {"id": alert_id, "reason": reason}
-        return self._base._make_request("POST", "alerts/close", json=json)
+        return self._make_request("POST", "alerts/close", json=json)
 
     def comment(self, alert_id: str, comment: str) -> Tuple[int, Dict]:
         """
@@ -59,14 +59,14 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
             comment (str): Message for your SOC team
         """
         json = {"alertID": alert_id, "comment": comment}
-        return self._base._make_request("POST", "alerts/comment", json=json)
+        return self._make_request("POST", "alerts/comment", json=json)
 
     def get(self, alert_id: str) -> Tuple[int, Dict | str]:
         """Gets specified alert data
         Args:
             alert_id (str): Alert UUID
         """
-        return self._base._make_request("GET", f"alerts/id/{alert_id}")
+        return self._make_request("GET", f"alerts/id/{alert_id}")
 
     def link_event(
         self,
@@ -91,7 +91,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
             "eventTimestamp": event_timestamp,
             "comment": comment,
         }
-        return self._base._make_request("POST", f"alerts/link-event", json=json)
+        return self._make_request("POST", f"alerts/link-event", json=json)
 
     def unlink_event(
         self,
@@ -104,7 +104,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
             event_id (str): Event UUID to unlink
         """
         json = {"alertID": alert_id, "eventID": event_id}
-        return self._base._make_request("POST", f"alerts/unlink-event", json=json)
+        return self._make_request("POST", f"alerts/unlink-event", json=json)
 
     # Extended
 
@@ -130,7 +130,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
                 "page": current_page,
                 **kwargs,
             }
-            status_code, data = self._base._make_request("GET", "alerts", params=params)
+            status_code, data = self._make_request("GET", "alerts", params=params)
             if status_code != 200:
                 return status_code, data
             items = data if isinstance(data, list) else [data]

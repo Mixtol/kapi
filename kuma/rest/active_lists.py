@@ -18,7 +18,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         Args:
             correlatorID* (str): Service ID
         """
-        return self._base._make_request(
+        return self._make_request(
             "GET", "activeLists", params={"correlatorID": correlator_id}
         )
 
@@ -37,7 +37,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
             data* (str): AL content (see examples)
         """
         params = {"correlatorID": correlator_id, "format": format, **kwargs}
-        return self._base._make_request(
+        return self._make_request(
             "POST", "activeLists/import", params=params, data=data
         )
 
@@ -47,7 +47,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         Args:
             file_id (str): File UUID via /download operation
         """
-        return self._base._make_request(
+        return self._make_request(
             "GET", f"download/{file_id}", headers={"Accept": "application/octet-stream"}
         )
 
@@ -60,7 +60,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
             correlator_id* (str): Service ID
             active_list_id* (str): Exporting AL resource id
         """
-        return self._base._make_request(
+        return self._make_request(
             "GET",
             f"services/{correlator_id}/activeLists/export/{active_list_id}",
             headers={"Accept": "application/octet-stream"},
@@ -80,7 +80,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
             limit (str): Yes str but actualy its limit number
             sort (str): For ASC <columnname> or add '-columnname' for DESC
         """
-        return self._base._make_request(
+        return self._make_request(
             "GET", f"services/{correlator_id}/activeLists/scan/{active_list_id}"
         )
 

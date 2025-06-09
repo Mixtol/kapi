@@ -183,3 +183,15 @@ class KumaRestAPIModule:
 
     def __init__(self, base: "KumaRestAPIBase") -> None:
         self._base = base
+
+    def __getattr__(self, name):
+        """Delegate attribute access to the parent client."""
+        return getattr(self._base, name)
+
+    def _make_request(self, *args, **kwargs):
+        """Proxy request call to the parent client."""
+        return self._base._make_request(*args, **kwargs)
+
+    def format_time(self, time_value):
+        """Proxy ``format_time`` to the parent client."""
+        return self._base.format_time(time_value)

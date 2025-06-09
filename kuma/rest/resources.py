@@ -25,7 +25,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         params = {
             **kwargs,
         }
-        return self._base._make_request("GET", "resources", params=params)
+        return self._make_request("GET", "resources", params=params)
 
     def download(self, id) -> Tuple[int, List | str]:
         """
@@ -33,7 +33,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         Args:
             id (str): File ID as a result of resource export request.
         """
-        return self._base._make_request("GET", f"resources/download/{id}")
+        return self._make_request("GET", f"resources/download/{id}")
 
     def export(
         self,
@@ -49,7 +49,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
             password (str): Future file open password
         """
         json = {"ids": resources_ids, "password": password, "tenantID": tenant_id}
-        return self._base._make_request("POST", "resources/export", json=json)
+        return self._make_request("POST", "resources/export", json=json)
 
     def import_data(
         self,
@@ -73,7 +73,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
             "password": password,
             "tenantID": tenant_id,
         }
-        return self._base._make_request("POST", "resources/import", json=json)
+        return self._make_request("POST", "resources/import", json=json)
 
     def toc(
         self,
@@ -90,7 +90,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
             "fileID": file_id,
             "password": password,
         }
-        return self._base._make_request("POST", f"resources/toc", json=json)
+        return self._make_request("POST", f"resources/toc", json=json)
 
     def upload(self, data: Union[bytes, str]) -> Tuple[int, List | str]:
         """
@@ -101,7 +101,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         if isinstance(data, str):
             with open(data, "rb") as f:
                 data = f.read()
-        return self._base._make_request("POST", "resources/upload", data=data)
+        return self._make_request("POST", "resources/upload", data=data)
 
     def create(
         self,
@@ -114,9 +114,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see examples.
         """
-        return self._base._make_request(
-            "POST", f"resources/{kind}/create", json=resource
-        )
+        return self._make_request("POST", f"resources/{kind}/create", json=resource)
 
     def validate(
         self,
@@ -129,9 +127,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see /create method.
         """
-        return self._base._make_request(
-            "POST", f"resources/{kind}/validate", json=resource
-        )
+        return self._make_request("POST", f"resources/{kind}/validate", json=resource)
 
     def get(self, kind: str, id: str) -> Tuple[int, List | str]:
         """
@@ -140,7 +136,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
             id (str): Resource UUID
             kind (str): Resource kind (correlationRule|dictionary|...)
         """
-        return self._base._make_request("GET", f"resources/{kind}/{id}")
+        return self._make_request("GET", f"resources/{kind}/{id}")
 
     def put(self, kind: str, id: str, resource: dict) -> Tuple[int, List | str]:
         """
@@ -150,4 +146,4 @@ class KumaRestAPIResources(KumaRestAPIModule):
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see /create method.
         """
-        return self._base._make_request("PUT", f"resources/{kind}/{id}", json=resource)
+        return self._make_request("PUT", f"resources/{kind}/{id}", json=resource)

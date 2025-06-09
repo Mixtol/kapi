@@ -40,7 +40,7 @@ class KumaRestAPIEvents(KumaRestAPIModule):
             "rawTimestamps": raw_timestamps,
             "sql": sql,
         }
-        return self._base._make_request("POST", "events", json=json)
+        return self._make_request("POST", "events", json=json)
 
     def get_clusters(self, **kwargs) -> tuple[int, dict | str | bytes]:
         """
@@ -55,7 +55,7 @@ class KumaRestAPIEvents(KumaRestAPIModule):
             tuple[int, dict | str | bytes]: _description_
         """
         params = {**kwargs}
-        return self._base._make_request("GET", "events/clusters", params=params)
+        return self._make_request("GET", "events/clusters", params=params)
 
     def get_time(self, offset_m: int = 0, offset_h: int = 0) -> str:
         """

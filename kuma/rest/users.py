@@ -27,7 +27,7 @@ class KumaRestAPIUsers(KumaRestAPIModule):
             size (int): Page size (250 by default)
         """
         params = {**kwargs}
-        return self._base._make_request("GET", "users", params=params)
+        return self._make_request("GET", "users", params=params)
 
     def get(
         self,
@@ -38,7 +38,7 @@ class KumaRestAPIUsers(KumaRestAPIModule):
         Args:
             id (str): User UUID
         """
-        return self._base._make_request("GET", f"users/id/{id}")
+        return self._make_request("GET", f"users/id/{id}")
 
     def whoami(
         self,
@@ -46,4 +46,4 @@ class KumaRestAPIUsers(KumaRestAPIModule):
         """
         Show info about token user
         """
-        return self._base._make_request("GET", f"users/whoami")
+        return self._make_request("GET", f"users/whoami")

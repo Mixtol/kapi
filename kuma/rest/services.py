@@ -27,7 +27,7 @@ class KumaRestAPIServices(KumaRestAPIModule):
             paired (bool): Services that executed the first start.
         """
         params = {**kwargs}
-        return self._base._make_request("GET", "services", params=params)
+        return self._make_request("GET", "services", params=params)
 
     def create(self, resource_id: str) -> Tuple[int, Dict]:
         """
@@ -35,7 +35,7 @@ class KumaRestAPIServices(KumaRestAPIModule):
         Args:
             resource_id (str): Resource template UUID
         """
-        return self._base._make_request(
+        return self._make_request(
             "POST", "services/create", json={"resourceID": resource_id}
         )
 
@@ -45,7 +45,7 @@ class KumaRestAPIServices(KumaRestAPIModule):
         Args:
             service_id (str): Service UUID
         """
-        return self._base._make_request("POST", f"services/{service_id}/reload")
+        return self._make_request("POST", f"services/{service_id}/reload")
 
     def restart(self, service_id: str) -> Tuple[int, Dict]:
         """
@@ -53,4 +53,4 @@ class KumaRestAPIServices(KumaRestAPIModule):
         Args:
             service_id (str): Service UUID
         """
-        return self._base._make_request("POST", f"services/{service_id}/restart")
+        return self._make_request("POST", f"services/{service_id}/restart")

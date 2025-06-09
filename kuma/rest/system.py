@@ -17,10 +17,10 @@ class KumaRestAPISystem(KumaRestAPIModule):
         """
         Creating binary Core backup file
         """
-        return self._base._make_request("POST", "system/backup")
+        return self._make_request("POST", "system/backup")
 
     def restore(self, data: str) -> Tuple[int, str]:
         """
         Restoring core from archive with the backup copy
         """
-        return self._base._make_request("POST", "system/backup", data=data)
+        return self._make_request("POST", "system/backup", data=data)
