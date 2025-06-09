@@ -1,13 +1,15 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIResources:
+
+class KumaRestAPIResources(KumaRestAPIModule):
     """
     Методы для работы с алертами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """
@@ -23,7 +25,7 @@ class KumaRestAPIResources:
         params = {
             **kwargs,
         }
-        return self._base._make_request("GET", "resources", params=params)
+        return self._make_request("GET", "resources", params=params)
 
     def download(self, id) -> Tuple[int, List | str]:
         """
@@ -31,7 +33,7 @@ class KumaRestAPIResources:
         Args:
             id (str): File ID as a result of resource export request.
         """
-        return self._base._make_request("GET", f"resources/download/{id}")
+        return self._make_request("GET", f"resources/download/{id}")
 
     def export(
         self,
@@ -47,9 +49,9 @@ class KumaRestAPIResources:
             password (str): Future file open password
         """
         json = {"ids": resources_ids, "password": password, "tenantID": tenant_id}
-        return self._base._make_request("POST", "resources/export", json=json)
+        return self._make_request("POST", "resources/export", json=json)
 
-    def _import(
+    def import_data(
         self,
         file_id: str,
         tenant_id: str,
@@ -71,7 +73,7 @@ class KumaRestAPIResources:
             "password": password,
             "tenantID": tenant_id,
         }
-        return self._base._make_request("POST", "resources/import", json=json)
+        return self._make_request("POST", "resources/import", json=json)
 
     def toc(
         self,
@@ -79,7 +81,7 @@ class KumaRestAPIResources:
         password: str = "Kuma_secret_p@$$w0rd",
     ) -> Tuple[int, List | str]:
         """
-        View content of uploaded resource file, recomended to use before _import
+        View content of uploaded resource file, recomended to use before import_data
         Args:
             file_id* (str): Uploaded file UUID returned by Core
             password (str): File open password
@@ -88,7 +90,7 @@ class KumaRestAPIResources:
             "fileID": file_id,
             "password": password,
         }
-        return self._base._make_request("POST", f"resources/toc", json=json)
+        return self._make_request("POST", f"resources/toc", json=json)
 
     def upload(self, data: Union[bytes, str]) -> Tuple[int, List | str]:
         """
@@ -97,9 +99,9 @@ class KumaRestAPIResources:
             data (binary): File data or file path
         """
         if isinstance(data, str):
-            with open(data, "rb", uncode="utf-8") as f:
+            with open(data, "rb") as f:
                 data = f.read()
-        return self._base._make_request("POST", "resources/upload", data=data)
+        return self._make_request("POST", "resources/upload", data=data)
 
     def create(
         self,
@@ -112,9 +114,7 @@ class KumaRestAPIResources:
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see examples.
         """
-        return self._base._make_request(
-            "POST", f"resources/{kind}/create", json=resource
-        )
+        return self._make_request("POST", f"resources/{kind}/create", json=resource)
 
     def validate(
         self,
@@ -127,9 +127,7 @@ class KumaRestAPIResources:
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see /create method.
         """
-        return self._base._make_request(
-            "POST", f"resources/{kind}/validate", json=resource
-        )
+        return self._make_request("POST", f"resources/{kind}/validate", json=resource)
 
     def get(self, kind: str, id: str) -> Tuple[int, List | str]:
         """
@@ -138,7 +136,7 @@ class KumaRestAPIResources:
             id (str): Resource UUID
             kind (str): Resource kind (correlationRule|dictionary|...)
         """
-        return self._base._make_request("GET", f"resources/{kind}/{id}")
+        return self._make_request("GET", f"resources/{kind}/{id}")
 
     def put(self, kind: str, id: str, resource: dict) -> Tuple[int, List | str]:
         """
@@ -148,4 +146,4 @@ class KumaRestAPIResources:
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see /create method.
         """
-        return self._base._make_request("PUT", f"resources/{kind}/{id}", json=resource)
+        return self._make_request("PUT", f"resources/{kind}/{id}", json=resource)

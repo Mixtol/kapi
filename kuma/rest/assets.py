@@ -1,13 +1,15 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIAssets:
+
+class KumaRestAPIAssets(KumaRestAPIModule):
     """
     Методы для работы с активами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """Searchin assets by provided filter
@@ -20,7 +22,7 @@ class KumaRestAPIAssets:
             ip (str): Case-insensitive regex filter for IP
             mac (str): Case-insensitive regex filter for MAC
         """
-        return self._base._make_request("GET", "assets", params=kwargs)
+        return self._make_request("GET", "assets", params=kwargs)
 
     def delete(
         self,
@@ -42,13 +44,13 @@ class KumaRestAPIAssets:
             "ipAddresses": assets_ips,
             "tenantID": tenant_id,
         }
-        return self._base._make_request("POST", "assets/delete", json=json)
+        return self._make_request("POST", "assets/delete", json=json)
 
     def create(self, assets: List[Dict], tenant_id: str) -> Tuple[int, Dict | str]:
-        """Import\Create assets fron JSON, see examples
+        """Import\Create assets from JSON, see examples
         Args:
             assets (list): List of assets JSON
             tenant_id (str): Assets tenantID
         """
         json = {"assets": assets, "tenantID": tenant_id}
-        return self._base._make_request("POST", "assets/import", json=json)
+        return self._make_request("POST", "assets/import", json=json)

@@ -1,13 +1,15 @@
 from typing import Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIUsers:
+
+class KumaRestAPIUsers(KumaRestAPIModule):
     """
     Методы для работы с пользователями
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """
@@ -25,7 +27,7 @@ class KumaRestAPIUsers:
             size (int): Page size (250 by default)
         """
         params = {**kwargs}
-        return self._base._make_request("GET", "users", params=params)
+        return self._make_request("GET", "users", params=params)
 
     def get(
         self,
@@ -36,7 +38,7 @@ class KumaRestAPIUsers:
         Args:
             id (str): User UUID
         """
-        return self._base._make_request("GET", f"users/id/{id}")
+        return self._make_request("GET", f"users/id/{id}")
 
     def whoami(
         self,
@@ -44,4 +46,4 @@ class KumaRestAPIUsers:
         """
         Show info about token user
         """
-        return self._base._make_request("GET", f"users/whoami")
+        return self._make_request("GET", f"users/whoami")

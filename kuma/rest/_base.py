@@ -85,11 +85,7 @@ class KumaRestAPIBase:
         """Configure the requests session with default headers."""
         self.session = requests.Session()
         self.session.headers.update(
-            {
-                "Authorization": f"Bearer {token}",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            }
+            {"Authorization": f"Bearer {token}", "Accept": "application/json"}
         )
 
     def _configure_ssl(self, verify: bool) -> None:
@@ -154,7 +150,7 @@ class KumaRestAPIBase:
         self.logger.debug(f"Content-Type: {response.headers.get('Content-Type')}")
 
         if response.status_code >= 300:
-            error_msg = f"Bad response {response.status_code}: {response.text[:500]}"
+            error_msg = f"Bad response {response.status_code}: {response.text}"
             self.logger.error(error_msg)
             raise APIError(error_msg, status_code=response.status_code)
 
@@ -180,3 +176,22 @@ class KumaRestAPIBase:
         if isinstance(time_value, int):
             return datetime.fromtimestamp(time_value).isoformat()
         return time_value
+
+
+class KumaRestAPIModule:
+    """Base class for REST API modules."""
+
+    def __init__(self, base: "KumaRestAPIBase") -> None:
+        self._base = base
+
+    def __getattr__(self, name):
+        """Delegate attribute access to the parent client."""
+        return getattr(self._base, name)
+
+    def _make_request(self, *args, **kwargs):
+        """Proxy request call to the parent client."""
+        return self._base._make_request(*args, **kwargs)
+
+    def format_time(self, time_value):
+        """Proxy ``format_time`` to the parent client."""
+        return self._base.format_time(time_value)

@@ -1,13 +1,15 @@
 from typing import Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPISettings:
+
+class KumaRestAPISettings(KumaRestAPIModule):
     """
     Методы для работы с настройками Ядра
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def view(self, id: str) -> tuple[int, dict | str]:
         """
@@ -15,4 +17,4 @@ class KumaRestAPISettings:
         Args:
             id (str): Configuration UUID of the custom fields
         """
-        return self._base._make_request("GET", f"settings/id/{id}")
+        return self._make_request("GET", f"settings/id/{id}")

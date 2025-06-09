@@ -1,13 +1,15 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from ._base import KumaRestAPIModule
 
-class KumaRestAPIFolders:
+
+class KumaRestAPIFolders(KumaRestAPIModule):
     """
     Методы для работы с алертами
     """
 
     def __init__(self, base):
-        self._base = base
+        super().__init__(base)
 
     def search(self, tenants_ids: List[str], **kwargs) -> Tuple[int, List | str]:
         """
@@ -26,4 +28,4 @@ class KumaRestAPIFolders:
         params = {
             **kwargs,
         }
-        return self._base._make_request("GET", "folders", params=params)
+        return self._make_request("GET", "folders", params=params)
