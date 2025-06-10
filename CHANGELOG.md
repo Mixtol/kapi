@@ -15,3 +15,15 @@ Modules now initialize on first access for performance
   - activeLists function `list` now named `lists`
 
 4. Added `@properties` for IDE support
+
+## Version 2.1.4 - 10/06/25
+- Removed init method for classes for KUMA components as initialization is being done in KumaRestAPIModule
+- Changed imports from relative to absolute because it is considered best-practice
+- Removed unused imports (from typing module)
+- Translated annotations to ENG
+- Changed logging.py to _logging.py because logging is reserved for module name
+- Added datatypes annotations
+- Added specific versions for modules in requirements.dev.txt
+- Fixed to_dict unic validation
+- Updated README.md
+- Added TODO
