@@ -32,7 +32,7 @@ import kuma
 client = kuma.RestClient(
     url="https://kuma.example.com",
     token="YOUR_BEARER_TOKEN",
-    verify=False,
+    verify='core.cert'  # Путь к SSL-сертификату (рекомендуется для продакшена)
 )
 code, response = client.<object>.<method>()
 ```

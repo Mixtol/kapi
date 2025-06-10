@@ -39,7 +39,7 @@ class KumaRestAPIBase:
         self,
         url: str,
         token: str,
-        verify: bool = False,
+        verify: bool | str = False,
         timeout: int = DEFAULT_TIMEOUT,
         logger: Optional[logging.Logger] = None,
     ):
@@ -88,7 +88,7 @@ class KumaRestAPIBase:
             {"Authorization": f"Bearer {token}", "Accept": "application/json"}
         )
 
-    def _configure_ssl(self, verify: bool) -> None:
+    def _configure_ssl(self, verify: bool | str) -> None:
         """Configure SSL verification settings."""
         self.verify = verify
         if not self.verify:
