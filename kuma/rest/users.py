@@ -1,16 +1,10 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIUsers(KumaRestAPIModule):
-    """
-    Методы для работы с пользователями
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Users."""
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """
         Search tenants with filter
@@ -29,10 +23,7 @@ class KumaRestAPIUsers(KumaRestAPIModule):
         params = {**kwargs}
         return self._make_request("GET", "users", params=params)
 
-    def get(
-        self,
-        id: str,
-    ) -> Tuple[int, List | str]:
+    def get(self, id: str) -> Tuple[int, List | str]:
         """
         Get specified user by UUID
         Args:
@@ -40,9 +31,7 @@ class KumaRestAPIUsers(KumaRestAPIModule):
         """
         return self._make_request("GET", f"users/id/{id}")
 
-    def whoami(
-        self,
-    ) -> Tuple[int, List | str]:
+    def whoami(self) -> Tuple[int, List | str]:
         """
         Show info about token user
         """

@@ -7,7 +7,7 @@ from typing import Any, Tuple
 import requests
 
 from .constants import SHARED_TENANT
-from .logging import configure_logging
+from ._logging import configure_logging
 
 _logger = configure_logging()
 _api_version = "v2.1"

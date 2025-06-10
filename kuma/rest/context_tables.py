@@ -1,16 +1,10 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIContextTables(KumaRestAPIModule):
-    """
-    Методы для работы с контекстными таблицами (живут на корреляторах)
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Context Tables (live on correlators)."""
     def list(
         self,
         correlator_id: str,

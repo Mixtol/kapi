@@ -1,16 +1,10 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPITasks(KumaRestAPIModule):
-    """
-    Методы для работы с отложенными задачами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Tasks."""
     def create(self, task: dict) -> Tuple[int, List | str]:
         """
         Search tenants with filter

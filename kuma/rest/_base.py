@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import requests
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-from ..logging import configure_logging
+from kuma._logging import configure_logging
 
 _logger = configure_logging()
 _api_version = "v2.1"
