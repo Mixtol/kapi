@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import requests
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-from ..logging import configure_logging
+from kuma._logging import configure_logging
 
 _logger = configure_logging()
 _api_version = "v2.1"
@@ -39,7 +39,7 @@ class KumaRestAPIBase:
         self,
         url: str,
         token: str,
-        verify: bool = False,
+        verify: bool | str = False,
         timeout: int = DEFAULT_TIMEOUT,
         logger: Optional[logging.Logger] = None,
     ):
@@ -88,7 +88,7 @@ class KumaRestAPIBase:
             {"Authorization": f"Bearer {token}", "Accept": "application/json"}
         )
 
-    def _configure_ssl(self, verify: bool) -> None:
+    def _configure_ssl(self, verify: bool | str) -> None:
         """Configure SSL verification settings."""
         self.verify = verify
         if not self.verify:

@@ -1,16 +1,10 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIResources(KumaRestAPIModule):
-    """
-    Методы для работы с алертами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Resources."""
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """
         Search resources
@@ -27,7 +21,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         }
         return self._make_request("GET", "resources", params=params)
 
-    def download(self, id) -> Tuple[int, List | str]:
+    def download(self, id: str) -> Tuple[int, List | str]:
         """
         Download export file data
         Args:
@@ -61,8 +55,8 @@ class KumaRestAPIResources(KumaRestAPIModule):
         """
         Import content file uploded early from /upload method
         Args:
-            file_id* (str): Uploaded file UUID returned by Core
-            tenant_id* (str): Destination resource tenant UUID
+            file_id (str): Uploaded file UUID returned by Core
+            tenant_id (str): Destination resource tenant UUID
             password (str): File open password
             actions (dict): Conflict resolve rules, see examples
                 0=ignore, 1=import, 2=replace
@@ -81,9 +75,9 @@ class KumaRestAPIResources(KumaRestAPIModule):
         password: str = "Kuma_secret_p@$$w0rd",
     ) -> Tuple[int, List | str]:
         """
-        View content of uploaded resource file, recomended to use before import_data
+        View content of uploaded resource file, recommended to use before import_data
         Args:
-            file_id* (str): Uploaded file UUID returned by Core
+            file_id (str): Uploaded file UUID returned by Core
             password (str): File open password
         """
         json = {

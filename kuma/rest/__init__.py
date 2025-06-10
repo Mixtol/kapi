@@ -1,20 +1,20 @@
-from ._base import KumaRestAPIBase
-from .active_lists import KumaRestAPIActiveLists
-from .alerts import KumaRestAPIAlerts
-from .assets import KumaRestAPIAssets
-from .context_tables import KumaRestAPIContextTables
-from .dictionaries import KumaRestAPIDictionaries
-from .events import KumaRestAPIEvents
-from .folders import KumaRestAPIFolders
-from .incidents import KumaRestAPIIncidents
-from .reports import KumaRestAPIReports
-from .resources import KumaRestAPIResources
-from .services import KumaRestAPIServices
-from .settings import KumaRestAPISettings
-from .system import KumaRestAPISystem
-from .tasks import KumaRestAPITasks
-from .tenants import KumaRestAPITenants
-from .users import KumaRestAPIUsers
+from kuma.rest._base import KumaRestAPIBase
+from kuma.rest.active_lists import KumaRestAPIActiveLists
+from kuma.rest.alerts import KumaRestAPIAlerts
+from kuma.rest.assets import KumaRestAPIAssets
+from kuma.rest.context_tables import KumaRestAPIContextTables
+from kuma.rest.dictionaries import KumaRestAPIDictionaries
+from kuma.rest.events import KumaRestAPIEvents
+from kuma.rest.folders import KumaRestAPIFolders
+from kuma.rest.incidents import KumaRestAPIIncidents
+from kuma.rest.reports import KumaRestAPIReports
+from kuma.rest.resources import KumaRestAPIResources
+from kuma.rest.services import KumaRestAPIServices
+from kuma.rest.settings import KumaRestAPISettings
+from kuma.rest.system import KumaRestAPISystem
+from kuma.rest.tasks import KumaRestAPITasks
+from kuma.rest.tenants import KumaRestAPITenants
+from kuma.rest.users import KumaRestAPIUsers
 
 
 class KumaRestAPI(KumaRestAPIBase):
@@ -43,20 +43,20 @@ class KumaRestAPI(KumaRestAPIBase):
         self,
         url: str,
         token: str,
-        verify,
+        verify: bool,
         timeout: int = KumaRestAPIBase.DEFAULT_TIMEOUT,
     ):
         super().__init__(url, token, verify, timeout)
         self._modules = {}
 
-    def _get_module(self, name):
+    def _get_module(self, name: str):
         if name in self._module_classes:
             if name not in self._modules:
                 self._modules[name] = self._module_classes[name](self)
             return self._modules[name]
         raise AttributeError(name)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         return self._get_module(name)
 
     def __dir__(self):

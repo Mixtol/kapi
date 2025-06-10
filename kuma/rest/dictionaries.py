@@ -1,19 +1,13 @@
 import csv
 import os
 from io import StringIO
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Tuple
 
-from ._base import APIError, KumaRestAPIModule
+from kuma.rest._base import APIError, KumaRestAPIModule
 
 
 class KumaRestAPIDictionaries(KumaRestAPIModule):
-    """
-    Методы для работы со словарями и таблицами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Dictionaries and Tables."""
     def content(self, dictionary_id: str) -> Tuple[int, str]:
         """
         Get dictionary content.

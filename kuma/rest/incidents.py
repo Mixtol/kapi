@@ -1,16 +1,10 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIIncidents(KumaRestAPIModule):
-    """
-    Методы для работы с алертами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Incidents."""
     def search(self, **kwargs) -> Tuple[int, bytes | str]:
         """
         Searching alerts from KUMA

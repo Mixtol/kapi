@@ -1,16 +1,10 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIServices(KumaRestAPIModule):
-    """
-    Методы для работы с сервисами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Services."""
     def search(
         self,
         **kwargs,
