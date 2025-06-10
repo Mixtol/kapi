@@ -117,6 +117,9 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         al_content_json = self.download(download_id)[1]
         al_content = [json.loads(line) for line in al_content_json.splitlines()]
 
+        if not al_content:
+            return 0, "Active List is empty"
+
         if active_list_key != "key" and active_list_key not in al_content[0].get(
             "record"
         ):
@@ -125,9 +128,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
             )
 
         dict_data = self._base.dictionaries.content(dictionary_id)[1]
-        dict_unique_values = frozenset(
-            row.split(",")[0] for row in dict_data.splitlines()[1:]
-        )
+        dict_unique_values = set(row.split(",")[0] for row in dict_data.splitlines()[1:])
         dict_headers = dict_data.splitlines()[0].split(",")
         del dict_headers[0]
 
@@ -155,6 +156,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         for row in al_content:
             if (key := row["key"]) not in dict_unique_values:
                 record = row["record"]
+                dict_unique_values.add(key)
                 dict_data += f"{key},{','.join([record.get(header, '') for header in dict_headers])}\n"
         return dict_data
 
@@ -172,5 +174,6 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         for row in al_content:
             record = row["record"]
             if (key := record[active_list_key]) not in dict_unique_values:
+                dict_unique_values.add(key)
                 dict_data += f"{key},{','.join([record.get(header, '') if header != 'key' else row['key'] for header in dict_headers])}\n"
         return dict_data
