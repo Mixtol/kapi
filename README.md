@@ -40,11 +40,12 @@ code, response = client.<object>.<method>()
 ### Для работы с приватным API (только для внутреннего использования)
 
 ```python
+import kuma
 
 # Инициализация клиента с приватным API
 client = kuma.PrivateClient(
     url="https://kuma.example.com",
-    login="USER",
+    username="USER",
     password="PASSWORD"
 )
 code, response = client.<object>.<method>()

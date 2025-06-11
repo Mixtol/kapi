@@ -43,7 +43,7 @@ class KumaRestAPI(KumaRestAPIBase):
         self,
         url: str,
         token: str,
-        verify: bool,
+        verify: bool | str,
         timeout: int = KumaRestAPIBase.DEFAULT_TIMEOUT,
     ):
         super().__init__(url, token, verify, timeout)

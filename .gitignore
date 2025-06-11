@@ -10,6 +10,7 @@
 config.py
 local_test.py
 test.cert
+
 # Folders
 dist/
 __pycache__/
