@@ -1,14 +1,10 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
+
+from kuma.rest._base import KumaRestAPIModule
 
 
-class KumaRestAPIAlerts:
-    """
-    Методы для работы с алертами
-    """
-
-    def __init__(self, base):
-        self._base = base
-
+class KumaRestAPIAlerts(KumaRestAPIModule):
+    """Methods for Alerts."""
     def search(self, **kwargs) -> Tuple[int, bytes | str]:
         """
         Searching alerts from KUMA
@@ -28,7 +24,7 @@ class KumaRestAPIAlerts:
         params = {
             **kwargs,
         }
-        return self._base._make_request("GET", "alerts", params=params)
+        return self._make_request("GET", "alerts", params=params)
 
     def assign(self, alerts_ids: list, user_id: str) -> Tuple[int, bytes | str]:
         """Alert assign method
@@ -37,7 +33,7 @@ class KumaRestAPIAlerts:
             user_id (str): User UUID
         """
         json = {"ids": alerts_ids, "userId": user_id}
-        return self._base._make_request("POST", "alerts/assign", json=json)
+        return self._make_request("POST", "alerts/assign", json=json)
 
     def close(self, alert_id: str, reason: str = "responded") -> Tuple[int, Dict]:
         """
@@ -47,7 +43,7 @@ class KumaRestAPIAlerts:
             reason (str): responded|incorrect data|incorrect correlation rule
         """
         json = {"id": alert_id, "reason": reason}
-        return self._base._make_request("POST", "alerts/close", json=json)
+        return self._make_request("POST", "alerts/close", json=json)
 
     def comment(self, alert_id: str, comment: str) -> Tuple[int, Dict]:
         """
@@ -57,14 +53,14 @@ class KumaRestAPIAlerts:
             comment (str): Message for your SOC team
         """
         json = {"alertID": alert_id, "comment": comment}
-        return self._base._make_request("POST", "alerts/comment", json=json)
+        return self._make_request("POST", "alerts/comment", json=json)
 
     def get(self, alert_id: str) -> Tuple[int, Dict | str]:
         """Gets specified alert data
         Args:
             alert_id (str): Alert UUID
         """
-        return self._base._make_request("GET", f"alerts/id/{alert_id}")
+        return self._make_request("GET", f"alerts/id/{alert_id}")
 
     def link_event(
         self,
@@ -89,7 +85,7 @@ class KumaRestAPIAlerts:
             "eventTimestamp": event_timestamp,
             "comment": comment,
         }
-        return self._base._make_request("POST", f"alerts/link-event", json=json)
+        return self._make_request("POST", f"alerts/link-event", json=json)
 
     def unlink_event(
         self,
@@ -102,29 +98,7 @@ class KumaRestAPIAlerts:
             event_id (str): Event UUID to unlink
         """
         json = {"alertID": alert_id, "eventID": event_id}
-        return self._base._make_request("POST", f"alerts/unlink-event", json=json)
-
-    ### ext
-
-    def search(self, **kwargs) -> Tuple[int, bytes | str]:
-        """
-        Searching alerts from KUMA
-        Args:
-            page (int): Listing page of result (250 alerts per page)
-            id (List[str]): Search for specified alerts
-            tenantID (str): Tenant filter
-            name (str): Case-insensetine name regex filter
-            timestampField (str): lastSeen|firtsSeen for from-to order
-            from (str): RFC3339 Lower limit
-            to (str): RFC3339 Upper limit
-            status (str): new|assigned|closed|escalated
-            withEvents (str): Include normalized JSON (HEAVY)
-            withAffected (str): Include assets and accounts
-        """
-        params = {
-            **kwargs,
-        }
-        return self._base._make_request("GET", "alerts", params=params)
+        return self._make_request("POST", f"alerts/unlink-event", json=json)
 
     # Extended
 
@@ -150,7 +124,7 @@ class KumaRestAPIAlerts:
                 "page": current_page,
                 **kwargs,
             }
-            status_code, data = self._base._make_request("GET", "alerts", params=params)
+            status_code, data = self._make_request("GET", "alerts", params=params)
             if status_code != 200:
                 return status_code, data
             items = data if isinstance(data, list) else [data]

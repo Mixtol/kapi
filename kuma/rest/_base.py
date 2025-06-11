@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import requests
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-from ..logging import configure_logging
+from kuma._logging import configure_logging
 
 _logger = configure_logging()
 _api_version = "v2.1"
@@ -39,7 +39,7 @@ class KumaRestAPIBase:
         self,
         url: str,
         token: str,
-        verify: bool = False,
+        verify: bool | str = False,
         timeout: int = DEFAULT_TIMEOUT,
         logger: Optional[logging.Logger] = None,
     ):
@@ -55,12 +55,12 @@ class KumaRestAPIBase:
         Raises:
             ValueError: If URL is malformed
         """
+        self.timeout = timeout
+        self.logger = logger or self._create_default_logger()
+
         self._configure_url(url)
         self._configure_session(token)
         self._configure_ssl(verify)
-
-        self.timeout = timeout
-        self.logger = logger or self._create_default_logger()
 
         self.logger.debug(f"Initialized KUMA API client for {self.url}")
 
@@ -85,14 +85,10 @@ class KumaRestAPIBase:
         """Configure the requests session with default headers."""
         self.session = requests.Session()
         self.session.headers.update(
-            {
-                "Authorization": f"Bearer {token}",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            }
+            {"Authorization": f"Bearer {token}", "Accept": "application/json"}
         )
 
-    def _configure_ssl(self, verify: bool) -> None:
+    def _configure_ssl(self, verify: bool | str) -> None:
         """Configure SSL verification settings."""
         self.verify = verify
         if not self.verify:
@@ -105,7 +101,7 @@ class KumaRestAPIBase:
         """Create and configure a default logger instance."""
         logger = logging.getLogger("kapi")
         logger.setLevel(logging.INFO)
-
+        logger.propagate = False
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
@@ -154,7 +150,7 @@ class KumaRestAPIBase:
         self.logger.debug(f"Content-Type: {response.headers.get('Content-Type')}")
 
         if response.status_code >= 300:
-            error_msg = f"Bad response {response.status_code}: {response.text[:500]}"
+            error_msg = f"Bad response {response.status_code}: {response.text}"
             self.logger.error(error_msg)
             raise APIError(error_msg, status_code=response.status_code)
 
@@ -180,3 +176,22 @@ class KumaRestAPIBase:
         if isinstance(time_value, int):
             return datetime.fromtimestamp(time_value).isoformat()
         return time_value
+
+
+class KumaRestAPIModule:
+    """Base class for REST API modules."""
+
+    def __init__(self, base: "KumaRestAPIBase") -> None:
+        self._base = base
+
+    def __getattr__(self, name):
+        """Delegate attribute access to the parent client."""
+        return getattr(self._base, name)
+
+    def _make_request(self, *args, **kwargs):
+        """Proxy request call to the parent client."""
+        return self._base._make_request(*args, **kwargs)
+
+    def format_time(self, time_value):
+        """Proxy ``format_time`` to the parent client."""
+        return self._base.format_time(time_value)

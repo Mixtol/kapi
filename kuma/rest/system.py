@@ -1,24 +1,20 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Tuple
+
+from kuma.rest._base import KumaRestAPIModule
 
 
-class KumaRestAPISystem:
-    """
-    Методы для работы с ядром
-    """
-
-    def __init__(self, base):
-        self._base = base
-
+class KumaRestAPISystem(KumaRestAPIModule):
+    """Methods for System."""
     def backup(
         self,
     ) -> Tuple[int, str]:
         """
         Creating binary Core backup file
         """
-        return self._base._make_request("POST", "system/backup")
+        return self._make_request("POST", "system/backup")
 
     def restore(self, data: str) -> Tuple[int, str]:
         """
         Restoring core from archive with the backup copy
         """
-        return self._base._make_request("POST", "system/backup", data=data)
+        return self._make_request("POST", "system/backup", data=data)

@@ -1,4 +1,4 @@
-from .private import KUMAPrivateAPI as private
-from .rest import KumaRestAPI as rest
+from kuma.private import KumaPrivateAPI as PrivateClient
+from kuma.rest import KumaRestAPI as RestClient
 
-__all__ = ["rest", "private"]
+__all__ = ["PrivateClient", "RestClient"]

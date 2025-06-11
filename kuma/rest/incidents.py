@@ -1,14 +1,10 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
+
+from kuma.rest._base import KumaRestAPIModule
 
 
-class KumaRestAPIIncidents:
-    """
-    Методы для работы с алертами
-    """
-
-    def __init__(self, base):
-        self._base = base
-
+class KumaRestAPIIncidents(KumaRestAPIModule):
+    """Methods for Incidents."""
     def search(self, **kwargs) -> Tuple[int, bytes | str]:
         """
         Searching alerts from KUMA
@@ -26,7 +22,7 @@ class KumaRestAPIIncidents:
         params = {
             **kwargs,
         }
-        return self._base._make_request("GET", "incidents", params=params)
+        return self._make_request("GET", "incidents", params=params)
 
     def assign(self, incidents_ids: list, user_id: str) -> Tuple[int, bytes | str]:
         """Alert assign method
@@ -35,7 +31,7 @@ class KumaRestAPIIncidents:
             user_id (str): User UUID
         """
         json = {"incidentIDs": incidents_ids, "assignee": user_id}
-        return self._base._make_request("POST", "incidents/assign", json=json)
+        return self._make_request("POST", "incidents/assign", json=json)
 
     def close(self, incidents_ids: str, resolution: str) -> Tuple[int, Dict]:
         """
@@ -45,7 +41,7 @@ class KumaRestAPIIncidents:
             resolution (int): 1 Confirmed|0 Not confirmed
         """
         json = {"incidentIDs": incidents_ids, "resolution": resolution}
-        return self._base._make_request("POST", "incidents/close", json=json)
+        return self._make_request("POST", "incidents/close", json=json)
 
     def comment(self, incident_id: str, comment: str) -> Tuple[int, Dict | str]:
         """
@@ -55,19 +51,19 @@ class KumaRestAPIIncidents:
             comment (str): Message for your SOC team
         """
         json = {"id": incident_id, "comment": comment}
-        return self._base._make_request("POST", "incidents/comment", json=json)
+        return self._make_request("POST", "incidents/comment", json=json)
 
     def create(
         self, incident: dict, calc_priority: bool = False
     ) -> Tuple[int, Dict | str]:
         """
-        Creating new incident fron JSON data
+        Creating new incident from JSON data
         Args:
             incident (dict): Incident JSON data, see examples
             calc_priority (str): Copy priority from alert
         """
         params = {"calcPriority": calc_priority}
-        return self._base._make_request(
+        return self._make_request(
             "POST", f"incidents/create", json=incident, params=params
         )
 
@@ -76,7 +72,7 @@ class KumaRestAPIIncidents:
         Args:
             incident_id (str): Incident INC id
         """
-        return self._base._make_request("GET", f"incidents/id/{incident_id}")
+        return self._make_request("GET", f"incidents/id/{incident_id}")
 
     def link_alert(
         self, incident_id: str, alerts_ids: List[str]
@@ -87,7 +83,7 @@ class KumaRestAPIIncidents:
             alerts_ids (str): List of alert UUID to link
         """
         json = {"incidentID": incident_id, "alertIDs": alerts_ids}
-        return self._base._make_request("POST", f"incidents/link", json=json)
+        return self._make_request("POST", f"incidents/link", json=json)
 
     def unlink_alert(
         self, incident_id: str, alerts_ids: List[str]
@@ -98,4 +94,4 @@ class KumaRestAPIIncidents:
             alerts_ids (str): List of alert UUID to unlink
         """
         json = {"incidentID": incident_id, "alertIDs": alerts_ids}
-        return self._base._make_request("POST", f"incidents/unlink", json=json)
+        return self._make_request("POST", f"incidents/unlink", json=json)

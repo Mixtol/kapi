@@ -1,14 +1,10 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Tuple
+
+from kuma.rest._base import KumaRestAPIModule
 
 
-class KumaRestAPIContextTables:
-    """
-    Методы для работы с контекстными таблицами (живут на корреляторах)
-    """
-
-    def __init__(self, base):
-        self._base = base
-
+class KumaRestAPIContextTables(KumaRestAPIModule):
+    """Methods for Context Tables (live on correlators)."""
     def list(
         self,
         correlator_id: str,
@@ -21,7 +17,7 @@ class KumaRestAPIContextTables:
         params = {
             "correlatorID": correlator_id,
         }
-        return self._base._make_request("GET", "contextTables", params=params)
+        return self._make_request("GET", "contextTables", params=params)
 
     def export(
         self,
@@ -43,9 +39,9 @@ class KumaRestAPIContextTables:
             params["contextTableID"] = context_table_id
         else:
             params["contextTableName"] = context_table_name
-        return self._base._make_request("GET", "contextTables/export", params=params)
+        return self._make_request("GET", "contextTables/export", params=params)
 
-    def _import(
+    def import_data(
         self, correlator_id: str, format: str, data: str, **kwargs
     ) -> tuple[int, str]:
         """
@@ -59,7 +55,7 @@ class KumaRestAPIContextTables:
             data* (str): CT content (see examples)
         """
         params = {"correlatorID": correlator_id, "format": format, **kwargs}
-        return self._base._make_request(
+        return self._make_request(
             "POST",
             "contextTables/import",
             params=params,

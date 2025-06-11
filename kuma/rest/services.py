@@ -1,14 +1,10 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
+
+from kuma.rest._base import KumaRestAPIModule
 
 
-class KumaRestAPIServices:
-    """
-    Методы для работы с сервисами
-    """
-
-    def __init__(self, base):
-        self._base = base
-
+class KumaRestAPIServices(KumaRestAPIModule):
+    """Methods for Services."""
     def search(
         self,
         **kwargs,
@@ -25,7 +21,7 @@ class KumaRestAPIServices:
             paired (bool): Services that executed the first start.
         """
         params = {**kwargs}
-        return self._base._make_request("GET", "services", params=params)
+        return self._make_request("GET", "services", params=params)
 
     def create(self, resource_id: str) -> Tuple[int, Dict]:
         """
@@ -33,7 +29,7 @@ class KumaRestAPIServices:
         Args:
             resource_id (str): Resource template UUID
         """
-        return self._base._make_request(
+        return self._make_request(
             "POST", "services/create", json={"resourceID": resource_id}
         )
 
@@ -43,7 +39,7 @@ class KumaRestAPIServices:
         Args:
             service_id (str): Service UUID
         """
-        return self._base._make_request("POST", f"services/{service_id}/reload")
+        return self._make_request("POST", f"services/{service_id}/reload")
 
     def restart(self, service_id: str) -> Tuple[int, Dict]:
         """
@@ -51,4 +47,4 @@ class KumaRestAPIServices:
         Args:
             service_id (str): Service UUID
         """
-        return self._base._make_request("POST", f"services/{service_id}/restart")
+        return self._make_request("POST", f"services/{service_id}/restart")

@@ -1,15 +1,11 @@
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
+
+from kuma.rest._base import KumaRestAPIModule
 
 
-class KumaRestAPIEvents:
-    """
-    Методы для работы с событиями
-    """
-
-    def __init__(self, base):
-        self._base = base
-
+class KumaRestAPIEvents(KumaRestAPIModule):
+    """Methods for Events."""
     def search(
         self,
         cluster_id: str,
@@ -31,14 +27,14 @@ class KumaRestAPIEvents:
         json = {
             "clusterID": cluster_id,
             "period": {
-                "from": self.format_time(start_time),
-                "to": self.format_time(end_time),
+                "from": self._base.format_time(start_time),
+                "to": self._base.format_time(end_time),
             },
             "emptyFields": empty_fields,
             "rawTimestamps": raw_timestamps,
             "sql": sql,
         }
-        return self._base._make_request("POST", "events", json=json)
+        return self._make_request("POST", "events", json=json)
 
     def get_clusters(self, **kwargs) -> tuple[int, dict | str | bytes]:
         """
@@ -53,7 +49,7 @@ class KumaRestAPIEvents:
             tuple[int, dict | str | bytes]: _description_
         """
         params = {**kwargs}
-        return self._base._make_request("GET", "events/clusters", params=params)
+        return self._make_request("GET", "events/clusters", params=params)
 
     def get_time(self, offset_m: int = 0, offset_h: int = 0) -> str:
         """
@@ -76,6 +72,7 @@ class KumaRestAPIEvents:
         adjusted_time = now + offset
         return adjusted_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    @staticmethod
     def epoch_to_iso8601(epoch_time: int) -> str:
         """
         Convert epoch timestamp to ISO 8601 format
