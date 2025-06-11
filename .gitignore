@@ -6,11 +6,14 @@
 *.json
 *.log
 *.idea
+*.egg-info/
+
 *env
+
 config.py
 local_test.py
 test.cert
+
 # Folders
 dist/
 __pycache__/
-*.egg-info/
