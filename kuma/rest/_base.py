@@ -1,24 +1,16 @@
 import logging
 from datetime import datetime
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union, Any
 
 import requests
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
 from kuma._logging import configure_logging
+from kuma.rest.errors import APIError
 
 _logger = configure_logging()
 _api_version = "v2.1"
-
-
-class APIError(Exception):
-    """Exception for API errors with status code support."""
-
-    def __init__(self, message: str, status_code: int = None):
-        self.status_code = status_code
-        super().__init__(message)
-        _logger.error(f"APIError: {message} (status: {status_code})")
 
 
 class KumaRestAPIBase:
@@ -104,9 +96,7 @@ class KumaRestAPIBase:
         logger.propagate = False
         if not logger.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s|%(name)s|%(levelname)s|%(message)s"
-            )
+            formatter = logging.Formatter("%(asctime)s|%(name)s|%(levelname)s|%(message)s")
             handler.setFormatter(formatter)
             logger.addHandler(handler)
 
@@ -143,7 +133,7 @@ class KumaRestAPIBase:
                 **kwargs,
             )
         except requests.RequestException as exception:
-            self.logger.error(f"Request failed: {str(exception)}")
+            self.logger.error(f"Request failed: {exception}")
             raise APIError(f"Request failed: {exception}") from exception
 
         self.logger.debug(f"Response: {response.status_code}")
@@ -168,11 +158,11 @@ class KumaRestAPIBase:
                 )
             return response.status_code, response.content
         except Exception as exception:
-            self.logger.error(f"Response parsing failed: {str(exception)}")
+            self.logger.error(f"Response parsing failed: {exception}")
             raise APIError(f"Response parsing failed: {exception}")
 
     @staticmethod
-    def format_time(time_value):
+    def format_time(time_value: int | Any) -> int | Any:
         if isinstance(time_value, int):
             return datetime.fromtimestamp(time_value).isoformat()
         return time_value
@@ -180,11 +170,10 @@ class KumaRestAPIBase:
 
 class KumaRestAPIModule:
     """Base class for REST API modules."""
-
-    def __init__(self, base: "KumaRestAPIBase") -> None:
+    def __init__(self, base: KumaRestAPIBase) -> None:
         self._base = base
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         """Delegate attribute access to the parent client."""
         return getattr(self._base, name)
 
@@ -192,6 +181,6 @@ class KumaRestAPIModule:
         """Proxy request call to the parent client."""
         return self._base._make_request(*args, **kwargs)
 
-    def format_time(self, time_value):
+    def format_time(self, time_value: int | Any) -> int | Any:
         """Proxy ``format_time`` to the parent client."""
         return self._base.format_time(time_value)
