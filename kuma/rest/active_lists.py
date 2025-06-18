@@ -150,8 +150,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         dict_data = ""
         for row in al_content:
             al_record = row["record"]
-            al_key = row["key"]
-            dict_key = al_key if al_key == "key" else al_record[al_key]
+            dict_key = row["key"] if al_key == "key" else al_record[al_key]
             if dict_key not in dict_unique_keys:
                 dict_unique_keys.add(dict_key)
                 dict_line = [dict_key]
