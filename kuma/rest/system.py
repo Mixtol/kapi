@@ -1,16 +1,10 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPISystem(KumaRestAPIModule):
-    """
-    Методы для работы с ядром
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for System."""
     def backup(
         self,
     ) -> Tuple[int, str]:

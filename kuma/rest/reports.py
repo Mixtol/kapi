@@ -1,16 +1,10 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import List, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIReports(KumaRestAPIModule):
-    """
-    Методы для работы с алертами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Reports."""
     def search(self, tenants_ids: List[str], **kwargs) -> Tuple[int, List | str]:
         """
         Searching reports info

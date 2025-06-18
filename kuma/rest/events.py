@@ -1,17 +1,11 @@
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIEvents(KumaRestAPIModule):
-    """
-    Методы для работы с событиями
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Events."""
     def search(
         self,
         cluster_id: str,

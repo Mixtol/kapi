@@ -1,17 +1,11 @@
 import json
 from typing import Dict, Tuple, Union
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIActiveLists(KumaRestAPIModule):
-    """
-    Методы для работы с активными списками
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Active Lists."""
     def lists(self, correlator_id: str) -> tuple[int, list | str]:
         """
         Gets current active lists on correlator.

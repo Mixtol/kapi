@@ -1,5 +1,9 @@
 # KAPI - KUMA API Python Client
 
+[![PyPI](https://img.shields.io/pypi/v/kuma-api?logo=pypi&logoColor=white)](https://pypi.org/project/kuma-api)
+[![GitHub](https://img.shields.io/badge/GitHub-repo-181717?logo=github&logoColor=white)](https://github.com/Mixtol/kapi)
+
+
 ## Описание
 
 KUMA API Python Client — это библиотека для взаимодействия с SIEM KUMA, предоставляющая удобный интерфейс как для публичного REST API, так и для приватных API-методов, используемых в веб-интерфейсе системы.
@@ -17,7 +21,7 @@ KUMA API Python Client — это библиотека для взаимодей
 pip install kuma-api
 ```
 
-## Инициализация клиента
+## Quickstart Инициализация клиента
 
 ### Для работы с публичным REST API
 
@@ -26,27 +30,35 @@ import kuma
 
 # Инициализация клиента с публичным API
 client = kuma.RestClient(
-    base_url="https://kuma.example.com",
+    url="https://kuma.example.com",
     token="YOUR_BEARER_TOKEN",
     verify='core.cert'  # Путь к SSL-сертификату (рекомендуется для продакшена)
 )
+code, response = client.<object>.<method>()
 ```
 
 ### Для работы с приватным API (только для внутреннего использования)
 
 ```python
+import kuma
 
 # Инициализация клиента с приватным API
 client = kuma.PrivateClient(
     url="https://kuma.example.com",
-    login="USER",
+    username="USER",
     password="PASSWORD"
 )
+code, response = client.<object>.<method>()
 ```
 
 **Важно:** Приватный API может изменяться между версиями KUMA и поддерживает подключение только с одного разрешенного хоста.
 
 ## Примеры использования REST
+
+### Расширенные функции
+
+Помимо стандартных REST-методов в клиенте есть ряд более комплексых методов, которые используют дополнительную логику или сразу несколько *public* методов, например преобразование Активного листа в Словарь и наоборот.
+Подробное описание и примеры функций — в [EXTENTIONS.md](EXTENTIONS.md).
 
 ### Работа с алертами
 
@@ -134,4 +146,4 @@ if status != 200:
 Официальная документация по публичному API доступна по адресу:
 https://support.kaspersky.com/help/KUMA/3.4/en-US/217973.htm
 
-**Примечание:** Приватные API-методы не документированы и могут изменяться вендором без предупреждения между версиями системы.
+**Примечание:** Приватные API-методы не задокументированы и могут изменяться вендором без предупреждения между версиями системы.
