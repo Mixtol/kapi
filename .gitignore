@@ -8,8 +8,7 @@
 *.idea
 *env
 config.py
-local_test.py
-test.cert
+*test*.py
 # Folders
 dist/
 __pycache__/

@@ -92,8 +92,8 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         active_list_id: str,
         dictionary_id: str,
         active_list_key: str = "key",
-        dictionary_key: str = "key",
         need_reload: int = 0,
+        clear: bool = False,
     ) -> Tuple[int, Dict | str]:
         """
         Converts active sheet data into an existing dictionary,
@@ -101,8 +101,9 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         correlator_id* (str): Service ID
         active_list_id* (str): Source AL resource id
         dictionary_id* (str): Destination Dict. resource id
-        dictionary_key: Key column name of Dictionary which will have values from key column of Active List.
         active_list_key: Column name of Active List which will be key column in Dictionary.
+        need_reload (1|0): Will restart all dependeses resources
+        clear (bool): Will clear filled dictionary
         """
         if not correlator_id:
             raise ValueError("Correlator id must be specified")
@@ -111,38 +112,36 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         if not dictionary_id:
             raise ValueError("Dictionary id must be specified")
 
-        download_id = self.export(
+        _, download_id = self.export(
             correlator_id=correlator_id, active_list_id=active_list_id
-        )[1]["id"]
-        al_content_json = self.download(download_id)[1]
-        al_content = [json.loads(line) for line in al_content_json.splitlines()]
+        )
+        _, al_content_json = self.download(download_id.get("id", {}))
+        active_list_content = [
+            json.loads(line) for line in al_content_json.splitlines()
+        ]
 
-        if active_list_key != "key" and active_list_key not in al_content[0].get(
-            "record"
-        ):
+        if active_list_key != "key" and active_list_key not in active_list_content[
+            0
+        ].get("record"):
             raise ValueError(
-                "Active List column name for Dictionary key must be equal 'key' or exist in Active List"
+                "Active List column name for key must be "
+                "equal 'key' or exist in Active List record"
             )
 
-        dict_data = self._base.dictionaries.content(dictionary_id)[1]
-        dict_unique_values = frozenset(
-            row.split(",")[0] for row in dict_data.splitlines()[1:]
-        )
+        _, dict_data = self._base.dictionaries.content(dictionary_id)
         dict_headers = dict_data.splitlines()[0].split(",")
-        del dict_headers[0]
 
-        if active_list_key == "key":
-            dict_data += self._get_data_with_key_column(
-                dict_unique_values, al_content, dict_headers
+        if not clear:
+            dict_unique_keys = frozenset(
+                row.split(",")[0] for row in dict_data.splitlines()[1:]
             )
         else:
-            dict_data += self._get_data_with_unique_column(
-                dict_unique_values,
-                al_content,
-                dict_headers,
-                active_list_key,
-                dictionary_key,
-            )
+            dict_unique_keys = []
+            dict_data = ",".join(dict_headers) + "\n"
+
+        dict_data += self._get_data_with_column(
+            active_list_key, active_list_content, dict_headers, dict_unique_keys
+        )
 
         return self._base.dictionaries.update(
             dictionary_id=dictionary_id,
@@ -150,27 +149,16 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
             need_reload=need_reload,
         )
 
-    def _get_data_with_key_column(self, dict_unique_values, al_content, dict_headers):
+    def _get_data_with_column(self, al_key, al_content, dict_headers, dict_unique_keys):
         dict_data = ""
         for row in al_content:
-            if (key := row["key"]) not in dict_unique_values:
-                record = row["record"]
-                dict_data += f"{key},{','.join([record.get(header, '') for header in dict_headers])}\n"
-        return dict_data
-
-    def _get_data_with_unique_column(
-        self,
-        dict_unique_values,
-        al_content,
-        dict_headers,
-        active_list_key,
-        dictionary_key,
-    ):
-        index = dict_headers.index(dictionary_key)
-        dict_headers[index] = "key"
-        dict_data = ""
-        for row in al_content:
-            record = row["record"]
-            if (key := record[active_list_key]) not in dict_unique_values:
-                dict_data += f"{key},{','.join([record.get(header, '') if header != 'key' else row['key'] for header in dict_headers])}\n"
+            al_record = row["record"]
+            al_key = row["key"]
+            dict_key = al_key if al_key == "key" else al_record[al_key]
+            if dict_key not in dict_unique_keys:
+                dict_line = [dict_key]
+                for header in dict_headers[1:]:
+                    value = al_record.get(header, "")
+                    dict_line.append(value)
+                dict_data += ",".join(dict_line) + "\n"
         return dict_data

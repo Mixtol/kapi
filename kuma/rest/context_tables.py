@@ -68,3 +68,8 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
             data=data,
             # headers={"Content-Type": f"text/{format}"}
         )
+
+    # Extentions
+
+    # def to_dict(self, ):
+    # need patch for export method from devs
