@@ -6,6 +6,7 @@ from kuma.rest._base import KumaRestAPIModule
 
 class KumaRestAPIActiveLists(KumaRestAPIModule):
     """Methods for Active Lists."""
+
     def lists(self, correlator_id: str) -> tuple[int, list | str]:
         """
         Gets current active lists on correlator.
@@ -128,11 +129,11 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         dict_headers = dict_data.splitlines()[0].split(",")
 
         if not clear:
-            dict_unique_keys = frozenset(
+            dict_unique_keys = set(
                 row.split(",")[0] for row in dict_data.splitlines()[1:]
             )
         else:
-            dict_unique_keys = frozenset()
+            dict_unique_keys = set()
             dict_data = ",".join(dict_headers) + "\n"
 
         dict_data += self._get_data_with_column(
