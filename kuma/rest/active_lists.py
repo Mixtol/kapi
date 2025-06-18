@@ -119,8 +119,10 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         active_list_content = [
             json.loads(line) for line in al_content_json.splitlines()
         ]
+        if not al_content_json:
+            return 0, "Active List is empty"
 
-        if active_list_key != "key" and active_list_key not in active_list_content[
+        elif active_list_key != "key" and active_list_key not in active_list_content[
             0
         ].get("record"):
             raise ValueError(
@@ -136,7 +138,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
                 row.split(",")[0] for row in dict_data.splitlines()[1:]
             )
         else:
-            dict_unique_keys = []
+            dict_unique_keys = frozenset()
             dict_data = ",".join(dict_headers) + "\n"
 
         dict_data += self._get_data_with_column(
@@ -156,6 +158,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
             al_key = row["key"]
             dict_key = al_key if al_key == "key" else al_record[al_key]
             if dict_key not in dict_unique_keys:
+                dict_unique_keys.add(dict_key)
                 dict_line = [dict_key]
                 for header in dict_headers[1:]:
                     value = al_record.get(header, "")
