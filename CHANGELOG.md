@@ -27,3 +27,10 @@ Modules now initialize on first access for performance
 - Fixed to_dict unic validation
 - Updated README.md
 - Added TODO
+
+## Version 2.1.5 - 17/06/25
+
+Update for `.active_lists.to_dictionary` function:
+- Fixed headers selection
+- Optimized set for values
+- Added *clear* dictionary option
