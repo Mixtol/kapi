@@ -1,18 +1,14 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIAssets(KumaRestAPIModule):
-    """
-    Методы для работы с активами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
+    """Methods for Assets."""
     def search(self, **kwargs) -> Tuple[int, List | str]:
-        """Searchin assets by provided filter
+        """
+        Searching assets by provided filter.
+
         Args:
             page (int): Assets page number
             id (str): Asset UUID
@@ -31,7 +27,9 @@ class KumaRestAPIAssets(KumaRestAPIModule):
         assets_ips: List[str],
         tenant_id: str,
     ) -> Tuple[int, Dict | str]:
-        """Method for deleting tenant assets
+        """
+        Method for deleting tenant assets.
+
         Args:
             assets_fqdns (List[str]): FQDNs list
             assets_ids (List[str]): Assets IDs list
@@ -47,7 +45,9 @@ class KumaRestAPIAssets(KumaRestAPIModule):
         return self._make_request("POST", "assets/delete", json=json)
 
     def create(self, assets: List[Dict], tenant_id: str) -> Tuple[int, Dict | str]:
-        """Import\Create assets from JSON, see examples
+        """
+        Import/create assets from JSON, see examples.
+
         Args:
             assets (list): List of assets JSON
             tenant_id (str): Assets tenantID

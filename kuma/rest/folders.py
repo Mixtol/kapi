@@ -1,17 +1,11 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import List, Tuple
 
-from ._base import KumaRestAPIModule
+from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIFolders(KumaRestAPIModule):
-    """
-    Методы для работы с алертами
-    """
-
-    def __init__(self, base):
-        super().__init__(base)
-
-    def search(self, tenants_ids: List[str], **kwargs) -> Tuple[int, List | str]:
+    """Methods for Folders."""
+    def search(self, tenants_ids: List[str], **kwargs) -> Tuple[int, List | str]:  # TODO: Use tenants_ids
         """
         Searching folders info
         Args:
