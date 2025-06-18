@@ -1,6 +1,6 @@
 # Расширенные функции KAPI
 
-Этот файл описывает вспомогательные коплексные методы, 
+Этот файл описывает вспомогательные коплексные методы,
 упрощающие задачи операционного сопровождения KUMA.
 
 ---
@@ -21,16 +21,16 @@ if status == 200:
 ````
 
 ## `active_lists.to_dictionary()`
-Если *active_list_key* и *dictionary_key* равны `key`, то аргументы не нужны.
 ```python
 status, resp = client.active_lists.to_dictionary(
     correlator_id="UUID-1",
     active_list_id="UUID-2",
     dictionary_id="UUDD-3",
-    active_list_key="SourceUserName", # какое поле AL станет ключом словаря
-    dictionary_key="Name",      # Наименование ключевого столбца в словаре
-    need_reload=1             # перезагрузить зависимые сервисы
+    active_list_key="SourceUserName", # Поле AL которое будет ключом словаря
+    need_reload=1,                  # Перезагрузить зависимые сервисы
+    clear=False                     # Будет ли словарь перезаписан
 )
 if status == 204:
     print("Словарь обновлён")
 ```
+> Если *active_list_key* не из record, то можно не указывать
