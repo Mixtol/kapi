@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Dict, Optional, Tuple, Union, Any
+from typing import Any, Dict, Optional, Tuple, Union
 
 import requests
 from urllib3 import disable_warnings
@@ -47,6 +47,9 @@ class KumaRestAPIBase:
         Raises:
             ValueError: If URL is malformed
         """
+        if not url or not token:
+            raise ValueError("Check KUMA url and token")
+
         self.timeout = timeout
         self.logger = logger or self._create_default_logger()
 
@@ -96,7 +99,9 @@ class KumaRestAPIBase:
         logger.propagate = False
         if not logger.handlers:
             handler = logging.StreamHandler()
-            formatter = logging.Formatter("%(asctime)s|%(name)s|%(levelname)s|%(message)s")
+            formatter = logging.Formatter(
+                "%(asctime)s|%(name)s|%(levelname)s|%(message)s"
+            )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
 
@@ -170,6 +175,7 @@ class KumaRestAPIBase:
 
 class KumaRestAPIModule:
     """Base class for REST API modules."""
+
     def __init__(self, base: KumaRestAPIBase) -> None:
         self._base = base
 
