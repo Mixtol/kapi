@@ -34,3 +34,8 @@ Update for `.active_lists.to_dictionary` function:
 - Fixed headers selection
 - Optimized set for values
 - Added *clear* dictionary option
+
+## Version 2.1.6 - 18/06/25
+
+Update for `.active_lists.to_dictionary` function:
+- Fixed custom key
