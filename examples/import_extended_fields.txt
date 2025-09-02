@@ -1,0 +1,14 @@
+[
+  {
+    "kind": "SA",
+    "name": "example",
+    "description": "example_description",
+    "disabled": false
+  },
+  {
+    "kind": "SA",
+    "name": "example_two",
+    "description": "example_description_two",
+    "disabled": false
+  }
+]

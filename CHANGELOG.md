@@ -39,3 +39,10 @@ Update for `.active_lists.to_dictionary` function:
 
 Update for `.active_lists.to_dictionary` function:
 - Fixed custom key
+
+
+## Version 3.0.0 - 01/09/25
+
+- Added new methods for *resources*
+- Added new methods for *settings*
+- Fix for *system/backups*: Now you can add you timeout value and changed POST -> GET for create bak method.
