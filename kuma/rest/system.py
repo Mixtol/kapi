@@ -11,7 +11,7 @@ class KumaRestAPISystem(KumaRestAPIModule):
     ) -> Tuple[int, str]:
         """
         Creating binary Core backup data.
-        savepath: str - Where you want to save file.
+        savepath: str - Where you want to save file (.tar.gz).
         timeout: int - Seconds, increse for big instances.
         """
         status_code, response = self._make_request(
@@ -27,11 +27,11 @@ class KumaRestAPISystem(KumaRestAPIModule):
         self, filepath: Optional[str] = None, data: Optional[bytes] = None
     ) -> Tuple[int, str]:
         """
-        Restoring core from archive with the backup copy
+        Restoring core from .tar.gz with the backup copy
         filepath: str - Relative path to bak file
         data: bytes - Bin backup data
         """
         if filepath:
-            with open(filepath, "wb") as f:
+            with open(filepath, "rb") as f:
                 data = f.read()
-        return self._make_request("POST", "system/backup", data=data)
+        return self._make_request("POST", "system/restore", data=data)
