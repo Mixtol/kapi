@@ -5,6 +5,7 @@ from kuma.rest._base import KumaRestAPIModule
 
 class KumaRestAPIResources(KumaRestAPIModule):
     """Methods for Resources."""
+
     def search(self, **kwargs) -> Tuple[int, List | str]:
         """
         Search resources
@@ -27,7 +28,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         Args:
             id (str): File ID as a result of resource export request.
         """
-        return self._make_request("GET", f"resources/download/{id}")
+        return self._make_request("GET", f"download/{id}")
 
     def export(
         self,
@@ -141,3 +142,28 @@ class KumaRestAPIResources(KumaRestAPIModule):
             resource (dict): Resource JSON object, see /create method.
         """
         return self._make_request("PUT", f"resources/{kind}/{id}", json=resource)
+
+    def list_history(self, kind: str, id: str) -> Tuple[int, List | str]:
+        """Getting all resource history versions
+        id (str): Resource UUID
+        kind (str): Resource kind (correlationRule|dictionary|...)
+        """
+        return self._make_request("GET", f"resources/{kind}/{id}/history")
+
+    def get_history(
+        self, kind: str, id: str, history_id: int
+    ) -> Tuple[int, List | str]:
+        """Getting resource history version with specified kind, ID and version number
+        id (str): Resource UUID
+        kind (str): Resource kind (correlationRule|dictionary|...)
+        history_id (int): Number of version
+        """
+        return self._make_request("GET", f"resources/{kind}/{id}/history/{history_id}")
+
+    def revert(self, kind: str, id: str, history_id: int) -> Tuple[int, List | str]:
+        """Reverting resource history version with specified kind, ID and version number
+        id (str): Resource UUID
+        kind (str): Resource kind (correlationRule|dictionary|...)
+        history_id (int): Number of version
+        """
+        return self._make_request("POST", f"resources/{kind}/{id}/history/{history_id}")
