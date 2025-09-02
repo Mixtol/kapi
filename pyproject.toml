@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kuma-api"
-version = "2.1.6"
+version = "3.0.1"
 description = "SDK для работы с API SIEM Kuma"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Anatolii", email = "aaz@ltdman.ru"},
+    { name = "Anatolii", email = "mixtol21@gmail.com"},
 
 ]
 dependencies = [

@@ -10,7 +10,7 @@ from kuma._logging import configure_logging
 from kuma.rest.errors import APIError
 
 _logger = configure_logging()
-_api_version = "v2.1"
+_api_version = "v3"
 
 
 class KumaRestAPIBase:
