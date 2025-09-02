@@ -116,7 +116,12 @@ class KumaRestAPIBase:
         self.session.close()
 
     def _make_request(
-        self, method: str, endpoint: str, headers: Optional[Dict] = None, **kwargs
+        self,
+        method: str,
+        endpoint: str,
+        headers: Optional[Dict] = None,
+        timeout: Optional[Dict] = None,
+        **kwargs,
     ) -> Tuple[int, Union[Dict, str, bytes]]:
         """
         Unified request method with error handling and logging.
@@ -134,7 +139,7 @@ class KumaRestAPIBase:
                 url=url,
                 headers=headers,
                 verify=self.verify,
-                timeout=self.timeout,
+                timeout=timeout or self.timeout,
                 **kwargs,
             )
         except requests.RequestException as exception:
