@@ -1,11 +1,13 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIFolders(KumaRestAPIModule):
     """Methods for Folders."""
-    def search(self, tenants_ids: List[str], **kwargs) -> Tuple[int, List | str]:  # TODO: Use tenants_ids
+    def search(
+        self, tenants_ids: List[str], **kwargs
+    ) -> Tuple[int, Union[List, str]]:  # TODO: Use tenants_ids
         """
         Searching folders info
         Args:

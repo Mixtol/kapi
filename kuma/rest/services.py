@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
@@ -8,7 +8,7 @@ class KumaRestAPIServices(KumaRestAPIModule):
     def search(
         self,
         **kwargs,
-    ) -> tuple[int, dict | str]:
+    ) -> Tuple[int, Union[dict, str]]:
         """
         Search services with filtering.
         Args:

@@ -7,7 +7,7 @@ from kuma.rest._base import KumaRestAPIModule
 class KumaRestAPIActiveLists(KumaRestAPIModule):
     """Methods for Active Lists."""
 
-    def lists(self, correlator_id: str) -> tuple[int, list | str]:
+    def lists(self, correlator_id: str) -> Tuple[int, Union[list, str]]:
         """
         Gets current active lists on correlator.
         Args:
@@ -19,7 +19,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
 
     def import_data(
         self, correlator_id: str, format: str, data: str, **kwargs
-    ) -> tuple[int, Union[str, list]]:
+    ) -> Tuple[int, Union[str, list]]:
         """
             Method for importing JSON(with out commas), CSV, TSV to Correaltor AL
         Args:
@@ -48,7 +48,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
 
     def export(
         self, correlator_id: str, active_list_id: str
-    ) -> Tuple[int, bytes | str]:
+    ) -> Tuple[int, Union[bytes, str]]:
         """
         Generatind AL file ID for download file method.
         Args:
@@ -63,7 +63,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
 
     def scan(
         self, correlator_id: str, active_list_id: str, **kwargs
-    ) -> Tuple[int, Dict | str]:
+    ) -> Tuple[int, Union[Dict, str]]:
         """
         Scan active list content withouts keys (For some extraordinary shit).
         Args:
@@ -89,7 +89,7 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         active_list_key: str = "key",
         need_reload: int = 0,
         clear: bool = False,
-    ) -> Tuple[int, Dict | str]:
+    ) -> Tuple[int, Union[Dict, str]]:
         """
         Converts active sheet data into an existing dictionary,
         with the ability to change the key column.

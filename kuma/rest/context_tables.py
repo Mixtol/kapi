@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
@@ -8,7 +8,7 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
     def list(
         self,
         correlator_id: str,
-    ) -> tuple[int, dict | str | bytes]:
+    ) -> Tuple[int, Union[dict, str, bytes]]:
         """
         Get context tables from correlator.
         Args:
@@ -24,7 +24,7 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
         correlator_id: str,
         context_table_id: Optional[str] = None,
         context_table_name: Optional[str] = None,
-    ) -> Tuple[int, bytes | str]:
+    ) -> Tuple[int, Union[bytes, str]]:
         """
         Download context table data from correlator
         Args:
@@ -43,7 +43,7 @@ class KumaRestAPIContextTables(KumaRestAPIModule):
 
     def import_data(
         self, correlator_id: str, format: str, data: str, **kwargs
-    ) -> tuple[int, str]:
+    ) -> Tuple[int, str]:
         """
         Method for importing JSON(with out commas), CSV, TSV to Correaltor AL
         Args:
