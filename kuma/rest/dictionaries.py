@@ -1,7 +1,7 @@
 import csv
 import os
 from io import StringIO
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 from kuma.rest._base import APIError, KumaRestAPIModule
 
@@ -122,7 +122,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
         active_list_id: str,
         dictionary_key: str = "key",
         clear: bool = False,
-    ) -> Tuple[int, Dict | str]:
+    ) -> Tuple[int, Union[Dict, str]]:
         """
         Converts dictionary data to an existing active list,
             with the ability to change the key column.

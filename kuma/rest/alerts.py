@@ -1,11 +1,11 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIAlerts(KumaRestAPIModule):
     """Methods for Alerts."""
-    def search(self, **kwargs) -> Tuple[int, bytes | str]:
+    def search(self, **kwargs) -> Tuple[int, Union[bytes, str]]:
         """
         Searching alerts from KUMA
         Args:
@@ -26,7 +26,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
         }
         return self._make_request("GET", "alerts", params=params)
 
-    def assign(self, alerts_ids: list, user_id: str) -> Tuple[int, bytes | str]:
+    def assign(self, alerts_ids: list, user_id: str) -> Tuple[int, Union[bytes, str]]:
         """Alert assign method
         Args:
             alerts_ids (list): Alerts UUID list
@@ -55,7 +55,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
         json = {"alertID": alert_id, "comment": comment}
         return self._make_request("POST", "alerts/comment", json=json)
 
-    def get(self, alert_id: str) -> Tuple[int, Dict | str]:
+    def get(self, alert_id: str) -> Tuple[int, Union[Dict, str]]:
         """Gets specified alert data
         Args:
             alert_id (str): Alert UUID
@@ -69,7 +69,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
         event_id: str,
         event_timestamp: int,
         comment: str,
-    ) -> Tuple[int, Dict | str]:
+    ) -> Tuple[int, Union[Dict, str]]:
         """Linking event from storage to alert
         Args:
             alert_id (str): Alert UUID
@@ -91,7 +91,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
         self,
         alert_id: str,
         event_id: str,
-    ) -> Tuple[int, Dict | str]:
+    ) -> Tuple[int, Union[Dict, str]]:
         """Unlinks event from  alert
         Args:
             alert_id (str): Alert UUID
@@ -102,7 +102,7 @@ class KumaRestAPIAlerts(KumaRestAPIModule):
 
     # Extended
 
-    def searchp(self, limit: int = 250, **kwargs) -> Tuple[int, list | str]:
+    def searchp(self, limit: int = 250, **kwargs) -> Tuple[int, Union[list, str]]:
         """
         Search with pagination, if more 250 is needed
         Args:

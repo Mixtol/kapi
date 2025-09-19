@@ -2,7 +2,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/kuma-api?logo=pypi&logoColor=white)](https://pypi.org/project/kuma-api)
 [![GitHub](https://img.shields.io/badge/GitHub-repo-181717?logo=github&logoColor=white)](https://github.com/Mixtol/kapi)
-
+![Python Version](https://img.shields.io/badge/python-3.9%2B-green)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ## Описание
 

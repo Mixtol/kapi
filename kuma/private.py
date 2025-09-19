@@ -2,7 +2,7 @@ import json
 import urllib
 import urllib.parse
 import uuid
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple, Union
 
 import requests
 
@@ -207,7 +207,9 @@ class KumaPrivateAPI:
             f"{self.url}/api/private/resources/correlator?tenantID={tenant_id}"
         ).json()
 
-    def get_tenant_services(self, tenant_id: str, kind: str) -> list | None:
+    def get_tenant_services(
+        self, tenant_id: str, kind: str
+    ) -> Optional[list]:
         """Функция возвращающая сервисы заданного типа по тенанту
         Args:
             tenant_id (str): tenantID
@@ -221,11 +223,13 @@ class KumaPrivateAPI:
         if response.status_code in (200, 204):
             return response.json()
 
-    def get_resource(self, id: str = None, kind: str | None = None) -> dict:
+    def get_resource(self, id: str = None, kind: Optional[str] = None) -> dict:
         response = self.session.get(f"{self.url}/api/private/resources/{kind}/{id}")
         return response.json() if response.status_code == 200 else response.text
 
-    def get_resources(self, kind: str | None = None, tenant_id: str = "") -> list:
+    def get_resources(
+        self, kind: Optional[str] = None, tenant_id: str = ""
+    ) -> list:
         response = self.session.get(
             f"{self.url}/api/private/resources/{kind}?tenantID={tenant_id}"
         )
@@ -279,7 +283,7 @@ class KumaPrivateAPI:
         )
         return response.json() if response.status_code == 200 else response.text
 
-    def get_all_services(self, kind: str | None = None):
+    def get_all_services(self, kind: Optional[str] = None):
         """The function for receiving all instance services"""
         if kind:
             url = f"{self.url}/api/private/services/?pattern=&size=1000&kind={kind}"
@@ -289,7 +293,7 @@ class KumaPrivateAPI:
         response = self.session.get(url)
         return response.json() if response.status_code == 200 else response.text
 
-    def get_service_id_by_resouce_id(self, resource_id) -> str | None:
+    def get_service_id_by_resouce_id(self, resource_id) -> Optional[str]:
         response = self.session.get(f"{self.url}/api/private/services/")
         for service in response.json():
             if service["resourceID"] == resource_id:
@@ -453,7 +457,7 @@ class KumaPrivateAPI:
 
     def get_folder_id_by_name(
         self, folder_name, sub_kind, tenant_id, parent_id
-    ) -> str | None:
+    ) -> Optional[str]:
         response_json = self.session.get(
             f"{self.url}/api/private/folders/?subKind={sub_kind}"
         ).json()
@@ -703,7 +707,7 @@ class KumaPrivateAPI:
         correlator_data["payload"]["rules"] = updated_rules
         return self.update_resource(correlator_data)
 
-    def move_content(self, folderID, resourceIDs: list | str):
+    def move_content(self, folderID, resourceIDs: Union[list, str]):
         """Функция перемещения из папки в папку контента"""
         url = self.url + "/api/private/misc/resource/move"
         payload = {
@@ -721,7 +725,7 @@ class KumaPrivateAPI:
         self,
         ids: list,
         tenant_id: str,
-        password: str | None = None,
+        password: Optional[str] = None,
         file_path: str = "exported_content",
     ):
         """
@@ -808,7 +812,7 @@ class KumaPrivateAPI:
 
     def get_active_list_content(
         self, correlator_service_id: str, active_list_id: str
-    ) -> str | Any:
+    ) -> Union[str, Any]:
         """
         Старая функция скачивает файл, потом разшифровывает его и возвращает словарь.
 

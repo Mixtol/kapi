@@ -36,7 +36,7 @@ class KumaRestAPIEvents(KumaRestAPIModule):
         }
         return self._make_request("POST", "events", json=json)
 
-    def get_clusters(self, **kwargs) -> tuple[int, dict | str | bytes]:
+    def get_clusters(self, **kwargs) -> Tuple[int, Union[dict, str, bytes]]:
         """
         List storages clusters for events.
         Args:
@@ -46,7 +46,7 @@ class KumaRestAPIEvents(KumaRestAPIModule):
             page (int, optional): Pagination page number
 
         Returns:
-            tuple[int, dict | str | bytes]: _description_
+            Tuple[int, Union[dict, str, bytes]]: _description_
         """
         params = {**kwargs}
         return self._make_request("GET", "events/clusters", params=params)

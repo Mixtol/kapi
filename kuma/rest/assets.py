@@ -1,11 +1,11 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIAssets(KumaRestAPIModule):
     """Methods for Assets."""
-    def search(self, **kwargs) -> Tuple[int, List | str]:
+    def search(self, **kwargs) -> Tuple[int, Union[List, str]]:
         """
         Searching assets by provided filter.
 
@@ -26,7 +26,7 @@ class KumaRestAPIAssets(KumaRestAPIModule):
         assets_ids: List[str],
         assets_ips: List[str],
         tenant_id: str,
-    ) -> Tuple[int, Dict | str]:
+    ) -> Tuple[int, Union[Dict, str]]:
         """
         Method for deleting tenant assets.
 
@@ -44,7 +44,7 @@ class KumaRestAPIAssets(KumaRestAPIModule):
         }
         return self._make_request("POST", "assets/delete", json=json)
 
-    def create(self, assets: List[Dict], tenant_id: str) -> Tuple[int, Dict | str]:
+    def create(self, assets: List[Dict], tenant_id: str) -> Tuple[int, Union[Dict, str]]:
         """
         Import/create assets from JSON, see examples.
 
