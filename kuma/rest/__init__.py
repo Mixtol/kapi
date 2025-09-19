@@ -1,3 +1,5 @@
+from typing import Union
+
 from kuma.rest._base import KumaRestAPIBase
 from kuma.rest.active_lists import KumaRestAPIActiveLists
 from kuma.rest.alerts import KumaRestAPIAlerts
@@ -43,7 +45,7 @@ class KumaRestAPI(KumaRestAPIBase):
         self,
         url: str,
         token: str,
-        verify: bool | str,
+        verify: Union[bool, str],
         timeout: int = KumaRestAPIBase.DEFAULT_TIMEOUT,
     ):
         super().__init__(url, token, verify, timeout)

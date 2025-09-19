@@ -1,11 +1,11 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPITasks(KumaRestAPIModule):
     """Methods for Tasks."""
-    def create(self, task: dict) -> Tuple[int, List | str]:
+    def create(self, task: dict) -> Tuple[int, Union[List, str]]:
         """
         Search tenants with filter
         Args:

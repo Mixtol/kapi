@@ -31,7 +31,7 @@ class KumaRestAPIBase:
         self,
         url: str,
         token: str,
-        verify: bool | str = False,
+        verify: Union[bool, str] = False,
         timeout: int = DEFAULT_TIMEOUT,
         logger: Optional[logging.Logger] = None,
     ):
@@ -83,7 +83,7 @@ class KumaRestAPIBase:
             {"Authorization": f"Bearer {token}", "Accept": "application/json"}
         )
 
-    def _configure_ssl(self, verify: bool | str) -> None:
+    def _configure_ssl(self, verify: Union[bool, str]) -> None:
         """Configure SSL verification settings."""
         self.verify = verify
         if not self.verify:
@@ -172,7 +172,7 @@ class KumaRestAPIBase:
             raise APIError(f"Response parsing failed: {exception}")
 
     @staticmethod
-    def format_time(time_value: int | Any) -> int | Any:
+    def format_time(time_value: Union[int, Any]) -> Any:
         if isinstance(time_value, int):
             return datetime.fromtimestamp(time_value).isoformat()
         return time_value
@@ -192,6 +192,6 @@ class KumaRestAPIModule:
         """Proxy request call to the parent client."""
         return self._base._make_request(*args, **kwargs)
 
-    def format_time(self, time_value: int | Any) -> int | Any:
+    def format_time(self, time_value: Union[int, Any]) -> Any:
         """Proxy ``format_time`` to the parent client."""
         return self._base.format_time(time_value)
