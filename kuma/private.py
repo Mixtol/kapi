@@ -6,11 +6,10 @@ from typing import Any, Tuple
 
 import requests
 
-from kuma.constants import SHARED_TENANT
 from kuma._logging import configure_logging
+from kuma.constants import SHARED_TENANT
 
 _logger = configure_logging()
-_api_version = "v2.1"
 
 
 class KumaPrivateAPI:
@@ -21,30 +20,56 @@ class KumaPrivateAPI:
      objects on port 7220 of the system core.
     """
 
+    DEFAULT_PORT = 7220
+    DEFAULT_TIMEOUT = 30
+    DEFAULT_SCHEME = "https"
+
     def __init__(
         self,
-        url,
-        username,
-        password,
-        existing_session_data=None,
-        version="2.1.0",
+        url: str,
+        username: str,
+        password: str,
+        session_data: dict = None,
+        version: str = "2.1.0",
     ):
-        self.url = url + ":7220"
         self.user = {}
-        self.username = username
-        self.password = password
-        self.version = version
+        self.username: str = username
+        self.password: str = password
+        self.version: str = version
+        self.selected_tenant = []
+
+        if not url:
+            raise ValueError("Check KUMA url")
+
+        self._configure_url(url)
+        self._configure_session(session_data)
+
+    def _configure_url(self, url: str) -> None:
+        """Normalize and validate the base URL."""
+        url = url.strip().rstrip("/")
+
+        if not url:
+            raise ValueError("URL cannot be empty")
+
+        if not url.startswith(("http://", "https://")):
+            url = f"{self.DEFAULT_SCHEME}://{url}"
+
+        if ":" not in url.split("//")[-1]:
+            url = f"{url}:{self.DEFAULT_PORT}"
+
+        self.url = url
+
+    def _configure_session(self, session_data: dict = {}) -> None:
+        """Configure the requests session with default headers."""
         self.session = requests.Session()
         self.session.verify = False
-        self.selected_tenants = []
 
-        if existing_session_data:
+        if session_data:
             try:
-                self.load_session(existing_session_data)
+                self.load_session(session_data)
             except Exception as exception:
                 _logger.error(f"Error occurred when loading session: {exception}")
                 self.initialize_session()
-
         else:
             self.initialize_session()
 
@@ -77,10 +102,6 @@ class KumaPrivateAPI:
             raise ConnectionError(
                 f"Bad credentials {self.url} response: {response.status_code} {response.text}"
             )
-
-        raise ConnectionError(
-            f"Cannot connect to {self.url} response: {response.status_code} {response.text}"
-        )
 
     def login(self, username, password, timeout: int = 10):
         payload = json.dumps({"login": username, "password": password})
@@ -231,12 +252,12 @@ class KumaPrivateAPI:
         )
         return response.json() if response.status_code == 200 else response.text
 
-    def get_correlation_rule_by_id(self, correlation_rule_id):
+    def get_correlation_rule_by_id(self, rule_id: str):
         return self.session.get(
-            f"{self.url}/api/private/resources/correlationRule/{correlation_rule_id}"
+            f"{self.url}/api/private/resources/correlationRule/{rule_id}"
         ).json()["payload"]
 
-    def get_correlation_rule(self, rule_id):
+    def get_correlation_rule(self, rule_id: str):
         """
         New function for getting full rule.
 
@@ -248,7 +269,7 @@ class KumaPrivateAPI:
         )
         return response.json() if response.status_code == 200 else response.text
 
-    def get_content_by_folder_id(self, folder_id, sub_kind):
+    def get_content_by_folder_id(self, folder_id: str, sub_kind: str):
         """
         Method for getting content from folder.
 
@@ -601,28 +622,23 @@ class KumaPrivateAPI:
             # 400 Возвращает если правило уже есть
             return []
 
-    def link_rules(self, rules_IDs: list, correlator_IDs: list, rules_tenant_id: str):
-        if self.version < 3:
+    def bind_rules(self, rules_ids: list, correlator_ids: list, tenant_id: str):
+        if int(self.version.split(".")[0]) < 3:
             raise ConnectionAbortedError("This function is not supported in KUMA v2")
 
         response = self.session.post(
             f"{self.url}/api/private/resources/correlation_rule/bind",
+            params={"tenantID": tenant_id},
             data=json.dumps(
-                {
-                    "correlationRuleIDs": rules_IDs,
-                    "correlatorIDs": correlator_IDs,
-                    "tenantID": rules_tenant_id,
-                }
+                {"ids": rules_ids, "correlatorIDs": correlator_ids, "searchType": "ids"}
             ),
         )
         return response.status_code
 
-    def link_rule_to_correlator(self, correlator_id, correlation_rule_id):
+    def link_rule_to_correlator(self, correlator_id: str, rule_id: str):
         try:
             url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
-            correlation_rule_payload = self.get_correlation_rule_by_id(
-                correlation_rule_id
-            )
+            correlation_rule_payload = self.get_correlation_rule_by_id(rule_id)
             correlator_data = self.get_correlator_by_id(correlator_id)
             if "rules" not in correlator_data["payload"]:
                 correlator_data["payload"]["rules"] = []
@@ -631,7 +647,7 @@ class KumaPrivateAPI:
             return correlator_data
 
         for cor_rul in correlator_data["payload"]["rules"]:
-            if cor_rul["id"] == correlation_rule_id:
+            if cor_rul["id"] == rule_id:
                 return "Rule already exist on correlator"
 
         correlator_data["payload"]["rules"].append(correlation_rule_payload)
@@ -643,38 +659,47 @@ class KumaPrivateAPI:
             else f"{response.status_code}:{response.text}"
         )
 
-    def link_rules_to_correlator(self, correlator_id, rules_list):
-        """Функция линковки правил к корреялтору
+    def link_rules_to_correlator(self, correlator_id: str, rules_list: list):
+        """Функция линковки правил к коррелятору
         Args:
-            correlator_id (_type_): ID корреялтора
-            rules_list (_type_): Передается лист с полноценными обектами правила
-                с нагрузкой и всеми делами, но в самом корреляторе испоьзуется payload
+            correlator_id (_type_): ID коррелятора
+            rules_list (_type_): Передается лист с полноценными объектами правила
+                с нагрузкой, но в самом корреляторе используется payload
         """
-        url = self.url + "/api/private/resources/correlator/" + correlator_id
+        url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
         correlator_data = self.get_correlator_by_id(correlator_id)
         if "rules" not in correlator_data["payload"]:
-            # Обработка если коррелятор пустой
             correlator_data["payload"]["rules"] = []
             linked_rules_id = []
         else:
-            # Быстро получаем список ID уже прилинкованных правил
             linked_rules_id = [
                 rule["id"] for rule in correlator_data["payload"]["rules"]
             ]
+
         for new_rule in rules_list:
             if new_rule["id"] not in linked_rules_id:
-                # Если правило не прилинковано добавляем в коррелятор
                 correlator_data["payload"]["rules"].append(new_rule["payload"])
+
         response = self.session.put(url, data=json.dumps(correlator_data))
         if response.status_code != 200:
             return f"{response.status_code}:{response.text}"
         return response.json()
 
-    def unlink_rules_from_correlator(self, correlator_id: str, rules_id: list):
-        """Отлинковка правил, по факту презаливание корреялтора без правил
+    def unbind_rule(self, rule_id: str, correlators_ids: list, tenant_id: str):
+        if int(self.version.split(".")[0]) < 3:
+            raise ConnectionAbortedError("This function is not supported in KUMA v2")
+
+        response = self.session.post(
+            f"{self.url}/api/private/resources/correlation_rule/{rule_id}/unbind",
+            data=json.dumps({"correlatorIDs": correlators_ids, "tenantID": tenant_id}),
+        )
+        return response.status_code
+
+    def unlink_rules_from_correlator(self, correlator_id: str, rules_ids: list):
+        """Отлинковка правил, по факту перезаливание корреялтора без правил
         Args:
             correlator_id (str): id UUID РЕСУРСА коррелятора
-            rules_id (list): Список UUID правил
+            rules_ids (list): Список UUID правил
         Returns:
             dict|str: Ответ API или сообщение об ошибке/статусе
         """
@@ -688,7 +713,7 @@ class KumaPrivateAPI:
                 f'Correlator {correlator_data.get("name")} has no linked rules at all'
             )
 
-        rules_to_unlink = set(rules_id)
+        rules_to_unlink = set(rules_ids)
         updated_rules = []
         change_check = False
         for rule in linked_rules:
@@ -698,7 +723,7 @@ class KumaPrivateAPI:
                 change_check = True
 
         if not change_check:
-            return {"response": "Correlator didnt have these rules in linked list"}
+            return {"response": "Correlator didn't have these rules in linked list"}
 
         correlator_data["payload"]["rules"] = updated_rules
         return self.update_resource(correlator_data)
