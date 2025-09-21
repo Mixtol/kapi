@@ -622,7 +622,7 @@ class KumaPrivateAPI:
             # 400 Возвращает если правило уже есть
             return []
 
-    def bind_rules(self, rules_ids: list, correlator_ids: list, tenant_id: str):
+    def bind_rules(self, correlator_ids: list[str], rules_ids: list[str], tenant_id: str):
         if int(self.version.split(".")[0]) < 3:
             raise ConnectionAbortedError("This function is not supported in KUMA v2")
 
@@ -635,35 +635,12 @@ class KumaPrivateAPI:
         )
         return response.status_code
 
-    def link_rule_to_correlator(self, correlator_id: str, rule_id: str):
-        try:
-            url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
-            correlation_rule_payload = self.get_correlation_rule_by_id(rule_id)
-            correlator_data = self.get_correlator_by_id(correlator_id)
-            if "rules" not in correlator_data["payload"]:
-                correlator_data["payload"]["rules"] = []
-
-        except KeyError:
-            return correlator_data
-
-        for cor_rul in correlator_data["payload"]["rules"]:
-            if cor_rul["id"] == rule_id:
-                return "Rule already exist on correlator"
-
-        correlator_data["payload"]["rules"].append(correlation_rule_payload)
-        response = self.session.put(url, data=json.dumps(correlator_data))
-
-        return (
-            response.json()
-            if response.status_code == 200
-            else f"{response.status_code}:{response.text}"
-        )
-
-    def link_rules_to_correlator(self, correlator_id: str, rules_list: list):
-        """Функция линковки правил к коррелятору
+    def link_rules_to_correlator(self, correlator_id: str, rules_ids: list[str]):
+        """Функция линковки правил к коррелятору.
+        
         Args:
             correlator_id (_type_): ID коррелятора
-            rules_list (_type_): Передается лист с полноценными объектами правила
+            rules_ids (_type_): Передается лист с полноценными объектами правила
                 с нагрузкой, но в самом корреляторе используется payload
         """
         url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
@@ -676,7 +653,7 @@ class KumaPrivateAPI:
                 rule["id"] for rule in correlator_data["payload"]["rules"]
             ]
 
-        for new_rule in rules_list:
+        for new_rule in rules_ids:
             if new_rule["id"] not in linked_rules_id:
                 correlator_data["payload"]["rules"].append(new_rule["payload"])
 
@@ -685,7 +662,7 @@ class KumaPrivateAPI:
             return f"{response.status_code}:{response.text}"
         return response.json()
 
-    def unbind_rule(self, rule_id: str, correlators_ids: list, tenant_id: str):
+    def unbind_rule(self, correlators_ids: list[str], rule_id: str, tenant_id: str):
         if int(self.version.split(".")[0]) < 3:
             raise ConnectionAbortedError("This function is not supported in KUMA v2")
 
@@ -695,11 +672,13 @@ class KumaPrivateAPI:
         )
         return response.status_code
 
-    def unlink_rules_from_correlator(self, correlator_id: str, rules_ids: list):
-        """Отлинковка правил, по факту перезаливание корреялтора без правил
+    def unlink_rules_from_correlator(self, correlator_id: str, rules_ids: list[str]):
+        """Отлинковка правил, по факту перезаливание коррелятора без правил.
+
         Args:
             correlator_id (str): id UUID РЕСУРСА коррелятора
             rules_ids (list): Список UUID правил
+
         Returns:
             dict|str: Ответ API или сообщение об ошибке/статусе
         """
