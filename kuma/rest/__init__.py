@@ -3,7 +3,6 @@ from kuma.rest.active_lists import KumaRestAPIActiveLists
 from kuma.rest.alerts import KumaRestAPIAlerts
 from kuma.rest.assets import KumaRestAPIAssets
 from kuma.rest.context_tables import KumaRestAPIContextTables
-from kuma.rest.correlators import KumaRestAPICorrelators
 from kuma.rest.dictionaries import KumaRestAPIDictionaries
 from kuma.rest.events import KumaRestAPIEvents
 from kuma.rest.folders import KumaRestAPIFolders
@@ -26,7 +25,6 @@ class KumaRestAPI(KumaRestAPIBase):
         "alerts": KumaRestAPIAlerts,
         "assets": KumaRestAPIAssets,
         "context_tables": KumaRestAPIContextTables,
-        "correlators": KumaRestAPICorrelators,
         "dictionaries": KumaRestAPIDictionaries,
         "events": KumaRestAPIEvents,
         "folders": KumaRestAPIFolders,
@@ -80,10 +78,6 @@ class KumaRestAPI(KumaRestAPIBase):
     @property
     def context_tables(self) -> KumaRestAPIContextTables:
         return self._get_module("context_tables")
-
-    @property
-    def correlators(self) -> KumaRestAPICorrelators:
-        return self._get_module("correlators")
 
     @property
     def dictionaries(self) -> KumaRestAPIDictionaries:
