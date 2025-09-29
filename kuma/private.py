@@ -643,30 +643,6 @@ class KumaPrivateAPI:
         )
         return response.status_code
 
-    def link_rule_to_correlator(self, correlator_id: str, rule_id: str):
-        try:
-            url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
-            correlation_rule_payload = self.get_correlation_rule_by_id(rule_id)
-            correlator_data = self.get_correlator_by_id(correlator_id)
-            if "rules" not in correlator_data["payload"]:
-                correlator_data["payload"]["rules"] = []
-
-        except KeyError:
-            return correlator_data
-
-        for cor_rul in correlator_data["payload"]["rules"]:
-            if cor_rul["id"] == rule_id:
-                return "Rule already exist on correlator"
-
-        correlator_data["payload"]["rules"].append(correlation_rule_payload)
-        response = self.session.put(url, data=json.dumps(correlator_data))
-
-        return (
-            response.json()
-            if response.status_code == 200
-            else f"{response.status_code}:{response.text}"
-        )
-
     def link_rules_to_correlator(self, correlator_id: str, rules_ids: list):
         """Функция линковки правил к коррелятору.
 
