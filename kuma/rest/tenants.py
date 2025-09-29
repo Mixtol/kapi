@@ -1,11 +1,11 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPITenants(KumaRestAPIModule):
     """Methods for Tenants."""
-    def search(self, **kwargs) -> Tuple[int, List | str]:
+    def search(self, **kwargs) -> Tuple[int, Union[List, str]]:
         """
         Search tenants with filter
         Args:
@@ -21,7 +21,7 @@ class KumaRestAPITenants(KumaRestAPIModule):
         name: str,
         eps_limit: int,
         description: str = "",
-    ) -> Tuple[int, List | str]:
+    ) -> Tuple[int, Union[List, str]]:
         """
         Create tenant
         Args:

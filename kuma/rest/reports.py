@@ -1,11 +1,13 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from kuma.rest._base import KumaRestAPIModule
 
 
 class KumaRestAPIReports(KumaRestAPIModule):
     """Methods for Reports."""
-    def search(self, tenants_ids: List[str], **kwargs) -> Tuple[int, List | str]:
+    def search(
+        self, tenants_ids: List[str], **kwargs
+    ) -> Tuple[int, Union[List, str]]:
         """
         Searching reports info
         Args:

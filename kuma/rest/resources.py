@@ -6,7 +6,7 @@ from kuma.rest._base import KumaRestAPIModule
 class KumaRestAPIResources(KumaRestAPIModule):
     """Methods for Resources."""
 
-    def search(self, **kwargs) -> Tuple[int, List | str]:
+    def search(self, **kwargs) -> Tuple[int, Union[List, str]]:
         """
         Search resources
         Args:
@@ -22,7 +22,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         }
         return self._make_request("GET", "resources", params=params)
 
-    def download(self, id: str) -> Tuple[int, List | str]:
+    def download(self, id: str) -> Tuple[int, Union[List, str]]:
         """
         Download export file data
         Args:
@@ -35,7 +35,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         resources_ids: List[str],
         tenant_id: str,
         password: str = "Kuma_secret_p@$$w0rd",
-    ) -> Tuple[int, List | str]:
+    ) -> Tuple[int, Union[List, str]]:
         """
         Generating export file ID for download
         Args:
@@ -52,7 +52,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         tenant_id: str,
         password: str = "Kuma_secret_p@$$w0rd",
         actions: Optional[Dict] = None,
-    ) -> Tuple[int, List | str]:
+    ) -> Tuple[int, Union[List, str]]:
         """
         Import content file uploded early from /upload method
         Args:
@@ -74,7 +74,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         self,
         file_id: str,
         password: str = "Kuma_secret_p@$$w0rd",
-    ) -> Tuple[int, List | str]:
+    ) -> Tuple[int, Union[List, str]]:
         """
         View content of uploaded resource file, recommended to use before import_data
         Args:
@@ -87,7 +87,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         }
         return self._make_request("POST", f"resources/toc", json=json)
 
-    def upload(self, data: Union[bytes, str]) -> Tuple[int, List | str]:
+    def upload(self, data: Union[bytes, str]) -> Tuple[int, Union[List, str]]:
         """
         Download export file data
         Args:
@@ -102,7 +102,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         self,
         kind: str,
         resource: dict,
-    ) -> Tuple[int, List | str]:
+    ) -> Tuple[int, Union[List, str]]:
         """
         Create resource from JSON
         Args:
@@ -115,7 +115,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         self,
         kind: str,
         resource: dict,
-    ) -> Tuple[int, List | str]:
+    ) -> Tuple[int, Union[List, str]]:
         """
         Validate resource JSON
         Args:
@@ -124,7 +124,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         """
         return self._make_request("POST", f"resources/{kind}/validate", json=resource)
 
-    def get(self, kind: str, id: str) -> Tuple[int, List | str]:
+    def get(self, kind: str, id: str) -> Tuple[int, Union[List, str]]:
         """
         Get resource JSON
         Args:
@@ -133,7 +133,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         """
         return self._make_request("GET", f"resources/{kind}/{id}")
 
-    def put(self, kind: str, id: str, resource: dict) -> Tuple[int, List | str]:
+    def put(self, kind: str, id: str, resource: dict) -> Tuple[int, Union[List, str]]:
         """
         Modify|Update resource with JSON
         Args:
@@ -143,7 +143,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         """
         return self._make_request("PUT", f"resources/{kind}/{id}", json=resource)
 
-    def list_history(self, kind: str, id: str) -> Tuple[int, List | str]:
+    def list_history(self, kind: str, id: str) -> Tuple[int, Union[List, str]]:
         """Getting all resource history versions
         id (str): Resource UUID
         kind (str): Resource kind (correlationRule|dictionary|...)
@@ -152,7 +152,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
 
     def get_history(
         self, kind: str, id: str, history_id: int
-    ) -> Tuple[int, List | str]:
+    ) -> Tuple[int, Union[List, str]]:
         """Getting resource history version with specified kind, ID and version number
         id (str): Resource UUID
         kind (str): Resource kind (correlationRule|dictionary|...)
@@ -160,7 +160,7 @@ class KumaRestAPIResources(KumaRestAPIModule):
         """
         return self._make_request("GET", f"resources/{kind}/{id}/history/{history_id}")
 
-    def revert(self, kind: str, id: str, history_id: int) -> Tuple[int, List | str]:
+    def revert(self, kind: str, id: str, history_id: int) -> Tuple[int, Union[List, str]]:
         """Reverting resource history version with specified kind, ID and version number
         id (str): Resource UUID
         kind (str): Resource kind (correlationRule|dictionary|...)
