@@ -310,7 +310,7 @@ class KumaPrivateAPI:
         response = self.session.get(url)
         return response.json() if response.status_code == 200 else response.text
 
-    def get_service_id_by_resouce_id(self, resource_id):
+    def get_service_id_by_resource_id(self, resource_id):
         response = self.session.get(f"{self.url}/api/private/services/")
         for service in response.json():
             if service["resourceID"] == resource_id:
