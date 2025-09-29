@@ -228,7 +228,7 @@ class KumaPrivateAPI:
             f"{self.url}/api/private/resources/correlator?tenantID={tenant_id}"
         ).json()
 
-    def get_tenant_services(self, tenant_id: str, kind: str) -> list | None:
+    def get_tenant_services(self, tenant_id: str, kind: str):
         """Функция возвращающая сервисы заданного типа по тенанту
         Args:
             tenant_id (str): tenantID
@@ -242,11 +242,11 @@ class KumaPrivateAPI:
         if response.status_code in (200, 204):
             return response.json()
 
-    def get_resource(self, id: str = None, kind: str | None = None) -> dict:
+    def get_resource(self, id: str = None, kind = None) -> dict:
         response = self.session.get(f"{self.url}/api/private/resources/{kind}/{id}")
         return response.json() if response.status_code == 200 else response.text
 
-    def get_resources(self, kind: str | None = None, tenant_id: str = "") -> list:
+    def get_resources(self, kind = None, tenant_id: str = "") -> list:
         response = self.session.get(
             f"{self.url}/api/private/resources/{kind}?tenantID={tenant_id}"
         )
@@ -300,7 +300,7 @@ class KumaPrivateAPI:
         )
         return response.json() if response.status_code == 200 else response.text
 
-    def get_all_services(self, kind: str | None = None):
+    def get_all_services(self, kind = None):
         """The function for receiving all instance services"""
         if kind:
             url = f"{self.url}/api/private/services/?pattern=&size=1000&kind={kind}"
@@ -310,12 +310,20 @@ class KumaPrivateAPI:
         response = self.session.get(url)
         return response.json() if response.status_code == 200 else response.text
 
-    def get_service_id_by_resouce_id(self, resource_id) -> str | None:
+    def get_service_id_by_resouce_id(self, resource_id):
         response = self.session.get(f"{self.url}/api/private/services/")
         for service in response.json():
             if service["resourceID"] == resource_id:
                 return service["id"]
         return None
+
+    def get_services_id_by_resouce_id(self, resource_id: str) -> list:
+        response = self.session.get(f"{self.url}/api/private/services/")
+        services_ids = []
+        for service in response.json():
+            if service["resourceID"] == resource_id:
+                services_ids.append(service["id"])
+        return services_ids
 
     def get_content_by_id(self, content_id, sub_kind):
         """Функция для возвращения всего обьекта по его ID
@@ -474,7 +482,7 @@ class KumaPrivateAPI:
 
     def get_folder_id_by_name(
         self, folder_name, sub_kind, tenant_id, parent_id
-    ) -> str | None:
+    ):
         response_json = self.session.get(
             f"{self.url}/api/private/folders/?subKind={sub_kind}"
         ).json()
@@ -622,7 +630,7 @@ class KumaPrivateAPI:
             # 400 Возвращает если правило уже есть
             return []
 
-    def bind_rules(self, correlator_ids: list[str], rules_ids: list[str], tenant_id: str):
+    def bind_rules(self, rules_ids: list, correlator_ids: list, tenant_id: str):
         if int(self.version.split(".")[0]) < 3:
             raise ConnectionAbortedError("This function is not supported in KUMA v2")
 
@@ -635,9 +643,33 @@ class KumaPrivateAPI:
         )
         return response.status_code
 
-    def link_rules_to_correlator(self, correlator_id: str, rules_ids: list[str]):
+    def link_rule_to_correlator(self, correlator_id: str, rule_id: str):
+        try:
+            url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
+            correlation_rule_payload = self.get_correlation_rule_by_id(rule_id)
+            correlator_data = self.get_correlator_by_id(correlator_id)
+            if "rules" not in correlator_data["payload"]:
+                correlator_data["payload"]["rules"] = []
+
+        except KeyError:
+            return correlator_data
+
+        for cor_rul in correlator_data["payload"]["rules"]:
+            if cor_rul["id"] == rule_id:
+                return "Rule already exist on correlator"
+
+        correlator_data["payload"]["rules"].append(correlation_rule_payload)
+        response = self.session.put(url, data=json.dumps(correlator_data))
+
+        return (
+            response.json()
+            if response.status_code == 200
+            else f"{response.status_code}:{response.text}"
+        )
+
+    def link_rules_to_correlator(self, correlator_id: str, rules_ids: list):
         """Функция линковки правил к коррелятору.
-        
+
         Args:
             correlator_id (_type_): ID коррелятора
             rules_ids (_type_): Передается лист с полноценными объектами правила
@@ -645,6 +677,10 @@ class KumaPrivateAPI:
         """
         url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
         correlator_data = self.get_correlator_by_id(correlator_id)
+        if not isinstance(correlator_data, dict):
+            return "500", f"Failed to get correlator data {correlator_id}: {correlator_data}"
+
+
         if "rules" not in correlator_data["payload"]:
             correlator_data["payload"]["rules"] = []
             linked_rules_id = []
@@ -653,16 +689,25 @@ class KumaPrivateAPI:
                 rule["id"] for rule in correlator_data["payload"]["rules"]
             ]
 
-        for new_rule in rules_ids:
-            if new_rule["id"] not in linked_rules_id:
-                correlator_data["payload"]["rules"].append(new_rule["payload"])
+        add_new_rules = False
+        rules_ids = set(rules_ids)
+        for rule_id in rules_ids:
+            if rule_id not in linked_rules_id:
+                rule_payload = self.get_correlation_rule_by_id(rule_id)
+                correlator_data["payload"]["rules"].append(rule_payload)
+                if not add_new_rules:
+                    add_new_rules = True
+
+        if not add_new_rules:
+            return "200", f"Correlation rules are already linked to '{correlator_id}'"
 
         response = self.session.put(url, data=json.dumps(correlator_data))
         if response.status_code != 200:
-            return f"{response.status_code}:{response.text}"
-        return response.json()
+            return response.status_code, response.text
+        return response.status_code, response.json()
 
-    def unbind_rule(self, correlators_ids: list[str], rule_id: str, tenant_id: str):
+
+    def unbind_rule(self, rule_id: str, correlators_ids: list, tenant_id: str):
         if int(self.version.split(".")[0]) < 3:
             raise ConnectionAbortedError("This function is not supported in KUMA v2")
 
@@ -682,14 +727,15 @@ class KumaPrivateAPI:
         Returns:
             dict|str: Ответ API или сообщение об ошибке/статусе
         """
+        url = f"{self.url}/api/private/resources/correlator/{correlator_id}"
         correlator_data = self.get_correlator_by_id(correlator_id)
         if not isinstance(correlator_data, dict):
-            return f"Failed to get correlator data {correlator_id}: {correlator_data}"
+            return "500", f"Failed to get correlator data {correlator_id}: {correlator_data}"
 
         linked_rules = correlator_data.get("payload", {}).get("rules", [])
         if not linked_rules:
             return (
-                f'Correlator {correlator_data.get("name")} has no linked rules at all'
+                "200", f'Correlator {correlator_data.get("name")} has no linked rules at all'
             )
 
         rules_to_unlink = set(rules_ids)
@@ -705,9 +751,13 @@ class KumaPrivateAPI:
             return {"response": "Correlator didn't have these rules in linked list"}
 
         correlator_data["payload"]["rules"] = updated_rules
-        return self.update_resource(correlator_data)
+        response = self.session.put(url, data=json.dumps(correlator_data))
+        if response.status_code != 200:
+            return response.status_code, response.text
+        return response.status_code, response.json()
 
-    def move_content(self, folderID, resourceIDs: list | str):
+
+    def move_content(self, folderID, resourceIDs):
         """Функция перемещения из папки в папку контента"""
         url = self.url + "/api/private/misc/resource/move"
         payload = {
@@ -725,7 +775,7 @@ class KumaPrivateAPI:
         self,
         ids: list,
         tenant_id: str,
-        password: str | None = None,
+        password = None,
         file_path: str = "exported_content",
     ):
         """
@@ -812,7 +862,7 @@ class KumaPrivateAPI:
 
     def get_active_list_content(
         self, correlator_service_id: str, active_list_id: str
-    ) -> str | Any:
+    ):
         """
         Старая функция скачивает файл, потом разшифровывает его и возвращает словарь.
 
@@ -883,3 +933,12 @@ class KumaPrivateAPI:
         response = self.session.post(url, json=data)
         if response.status_code != 204:
             return f"{response.reason} {response.text}"
+
+    def reload_services(self, resource_id: str) -> list:
+        services_ids = self.get_services_id_by_resouce_id(resource_id)
+        results = []
+        for service_id in services_ids:
+            response = self.session.post(f"{self.url}/api/private/services/id/{service_id}/reload")
+            results.append([response.status_code, service_id])
+        return results
+
