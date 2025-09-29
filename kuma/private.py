@@ -317,7 +317,7 @@ class KumaPrivateAPI:
                 return service["id"]
         return None
 
-    def get_services_id_by_resource_id(self, resource_id: str) -> list:
+    def get_services_ids_by_resource_id(self, resource_id: str) -> list:
         response = self.session.get(f"{self.url}/api/private/services/")
         services_ids = []
         for service in response.json():
@@ -911,7 +911,7 @@ class KumaPrivateAPI:
             return f"{response.reason} {response.text}"
 
     def reload_services(self, resource_id: str) -> list:
-        services_ids = self.get_services_id_by_resource_id(resource_id)
+        services_ids = self.get_services_ids_by_resource_id(resource_id)
         results = []
         for service_id in services_ids:
             response = self.session.post(f"{self.url}/api/private/services/id/{service_id}/reload")
