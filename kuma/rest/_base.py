@@ -34,15 +34,17 @@ class KumaRestAPIBase:
         verify: Union[bool, str] = False,
         timeout: int = DEFAULT_TIMEOUT,
         logger: Optional[logging.Logger] = None,
+        version: str = "",
     ):
         """Initialize the API client.
 
         Args:
-            url: Base server URL (e.g., "kumacore.local" or "https://kumacore.local:7223")
-            token: Bearer token for authentication
+            url: Base server URL (e.g., "kumacore.local" or "https://kumacore.local:7223").
+            token: Bearer token for authentication.
             verify: SSL certificate verification. Set False to disable warnings.
-            timeout: Request timeout in seconds (default: 30)
-            logger: Custom logger instance (optional)
+            timeout: Request timeout in seconds (default: 30).
+            logger: Custom logger instance (optional).
+            version: Version of KUMA API.
 
         Raises:
             ValueError: If URL is malformed
@@ -52,6 +54,7 @@ class KumaRestAPIBase:
 
         self.timeout = timeout
         self.logger = logger or self._create_default_logger()
+        self.v = version or _api_version
 
         self._configure_url(url)
         self._configure_session(token)
@@ -126,7 +129,7 @@ class KumaRestAPIBase:
         """
         Unified request method with error handling and logging.
         """
-        url = f"{self.url}/api/{_api_version}/{endpoint.lstrip('/')}"
+        url = f"{self.url}/api/{self.v}/{endpoint.lstrip('/')}"
         headers = {**self.session.headers, **(headers or {})}
 
         self.logger.debug(f"Request: {method} {url}")

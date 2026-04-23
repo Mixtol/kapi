@@ -1,4 +1,5 @@
-from typing import Union
+import logging
+from typing import Union, Optional
 
 from kuma.rest._base import KumaRestAPIBase
 from kuma.rest.active_lists import KumaRestAPIActiveLists
@@ -47,8 +48,10 @@ class KumaRestAPI(KumaRestAPIBase):
         token: str,
         verify: Union[bool, str],
         timeout: int = KumaRestAPIBase.DEFAULT_TIMEOUT,
+        logger: Optional[logging.Logger] = None,
+        version: str = "",
     ):
-        super().__init__(url, token, verify, timeout)
+        super().__init__(url, token, verify, timeout, logger, version)
         self._modules = {}
 
     def _get_module(self, name: str):
