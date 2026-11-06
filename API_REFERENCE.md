@@ -93,6 +93,8 @@ client = kapi.RestClient(
 
 Общие параметры файловых методов: `filepath`, `chunk_size`, `timeout`. Скачивание дополнительно принимает `stream`: по умолчанию возвращается `DownloadStream`, `stream=False` явно включает чтение целиком. JSON-ответы экспортирующих операций содержат ID файла, который передаётся в метод скачивания.
 
+С `filepath` скачивание возвращает `(status, path)` и заменяет файл только после успешной записи всех чанков; загрузка читает файл частями. Без пути скачивание возвращает `(status, DownloadStream)`: полностью прочитайте поток или закройте через `with`. `DownloadStream.save(path)` допустим только до чтения первого чанка.
+
 `resources.export`, `active_lists.export`, `context_tables.export` и `settings.export_extendedfields` принимают отдельный `timeout=`: число секунд или `(connect, read)`. Например: `client.resources.export(ids, tenant_id, password=password, timeout=(5, 120))`. `None` использует таймаут клиента; переопределение действует только на этот запрос. Для последующего `download` таймаут задаётся отдельно. Это таймаут подключения/ожидания данных, а не общий предел длительности экспорта.
 
 Для `active_lists.import_data` выберите `activeListID` или `activeListName`, для `context_tables.import_data` — `contextTableID` или `contextTableName`. CSV/TSV активного списка требуют `keyField`. `context_tables.export` принимает `context_table_id` или `context_table_name`. В 3.4 доступен только внутренний формат NDJSON; в 4.0/4.1/4.2 можно выбрать `format="internal"` (по умолчанию), `"csv"` или `"tsv"`. Неподдерживаемый формат для 3.4 отклоняется до запроса.
@@ -103,9 +105,11 @@ client = kapi.RestClient(
 
 `clear`, `withEvents`, `withAffected`, `paired` и `main` являются флагами наличия. Ложный флаг исключается из query. Фильтры имён в 3.4 используют регулярные выражения без учёта регистра, в 4.0/4.1/4.2 — подстроки. Клиент передаёт выражение без преобразования. Для сортировки отчётов используется `createdAt` в 3.4 и `finishedAt` в 4.0/4.1/4.2. Сложные JSON-схемы ресурсов, задач и ответы остаются в формате выбранной версии сервера; клиент не преобразует их между выпусками.
 
-Дополнительные методы `alerts.searchp`, `alerts.iter_search`, преобразования CSV и привязка правил описаны в [README.md](README.md) и [EXTENTIONS.md](EXTENTIONS.md).
+Дополнительные методы `alerts.searchp`, `alerts.iter_search`, преобразования CSV и привязка правил описаны в [EXTENTIONS.md](EXTENTIONS.md).
 
-Ошибки KUMA 3.4 могут содержать `entity`/`errors` вместо `message`/`details`; библиотека поддерживает оба формата. Если сервер не прислал `params`, библиотека сохраняет исходное сообщение без выдуманных границ.
+`alerts.iter_search()` вызывает `APIError`, если сервер повторяет страницу; записи этой страницы повторно не выдаются.
+
+В `APIError` доступны `details`, `errors`, `params`, `response_data` и `response_text`; параметры из `params` подставляются в текст ошибки. KUMA 3.4 может возвращать `entity`/`errors` вместо `message`/`details`; поддерживаются оба формата. Без `params` сохраняется исходное сообщение.
 
 ## Данные для примеров
 

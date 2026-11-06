@@ -1,6 +1,29 @@
-# Расширенные функции KAPI
+# Дополнительные методы публичного API
 
-Преобразования используют временные файлы и потоковую передачу. Полные CSV и NDJSON не накапливаются в памяти; для проверки уникальности сохраняется множество ключей. Временные файлы удаляются при завершении, включая ошибки.
+Кастомные методы KAPI, построенные на публичном REST API KUMA. В примерах `client`, `source` и `target` — экземпляры `RestClient`.
+
+## Постраничный поиск алертов
+
+```python
+for alert in client.alerts.iter_search(status=["new"]):
+    process(alert)
+
+status, alerts = client.alerts.searchp(limit=500, status=["assigned"])
+```
+
+`iter_search()` выдаёт алерты по одному, `searchp()` собирает до `limit` записей в список. Повторная страница вызывает `APIError`.
+
+## Поиск по содержимому ресурсов
+
+```python
+status, result = client.resources.find_content(
+    kind="filter",
+    tenant_ids=[tenant_id],
+    query="powershell",
+)
+```
+
+Совпадения — в `result["rows"]`, полнота поиска — в `result["complete"]`. Если `result["state"]` не `None`, передайте его как `state=` в следующий вызов с теми же условиями.
 
 ## Словарь в активный список
 
@@ -20,20 +43,24 @@ assert status == 204
 ## Активный список в словарь
 
 ```python
-status, response = client.active_lists.to_dictionary(
-    correlator_id="correlator-service-id",
-    active_list_id="active-list-id",
-    dictionary_id="dictionary-id",
-    active_list_key="key",
-    need_reload=0,
-    clear=False,
+status, report = client.active_lists.to_dictionary(
+    correlator_id, active_list_id, dictionary_id,
+    on_conflict="update",  # keep по умолчанию; update заменяет строку целиком.
+    columns={"value": "login"},  # Столбец словаря → поле AL.
+    invalid_rows="skip",   # Пропускать некорректные записи AL.
+    clean_existing=True,   # Удалять некорректные строки и дубли словаря.
+    return_report=True,    # Вернуть счётчики и исходный ответ сервера.
+    dry_run=True,          # Только план; False — применить изменения.
+    timeout=(5, 120),      # connect/read для каждого запроса.
 )
-assert status == 200
+print(report["added"], report["replaced"], report["skipped"], report["dropped"])
 ```
 
-Заголовок берётся из целевого словаря. При `clear=False` существующие строки сохраняются, имеющиеся ключи не заменяются. CSV-экранирование обрабатывает запятые, кавычки и переносы строк. Числа преобразуются в текст. Пользовательский ключ проверяется в каждой записи.
-
-Пустой активный список при `clear=False` возвращает `(200, {"message": "Active list is empty", "updated": False})` без записи в словарь. При `clear=True` целевой словарь перезаписывается, в том числе остаётся только заголовок при пустом исходном списке.
+- `active_list_key="key"` — ключ AL; можно указать поле из `record`.
+- `columns` переименовывает выбранные поля; остальные читаются по имени, отсутствующие дают пустую строку. При повторах ключа в AL берётся первая корректная запись.
+- По умолчанию ошибка строки останавливает запись; `max_cell_len=1024` — лимит ячейки.
+- `clear=True` заменяет всё содержимое; полная очистка построчная и не атомарна. `dry_run=True` всегда возвращает отчёт: `would_update` показывает наличие изменений, `updated=False`.
+- Без `dry_run` и `return_report` результат — `(status, response)`. Все параметры — в docstring метода.
 
 ## Связи правил и корреляторов: публичный API
 
@@ -137,44 +164,3 @@ for result in source.resources.iter_copy_to(
 Результат пакета содержит `status`, `resourceIDs`, `result`, `backups`, `backup_path` и `conflicts_restored`. `backups` перечисляет путь, исходный тенант и ID каждого резервного набора; `backup_path` — первый путь для удобства. Резервные архивы остаются на диске. При ошибке после резервирования и начала повторного импорта `APIError` содержит `backups`, `backup_path`, `conflicts_restored`; исходная ошибка доступна через `__cause__`.
 
 Перенос не является транзакцией: предыдущие пакеты и часть текущего импорта могут сохраниться после ошибки. Совпадение имён не гарантирует конфликт: при переносе между тенантами KUMA может создать копию с изменённым именем. Метод переносит содержимое ресурсного архива по контракту KUMA, а не произвольное состояние запущенных сервисов или данные активных списков. Автоматической перезагрузки нет.
-
-## Массовое изменение алертинга: приватный API
-
-```python
-for result in private.iter_update_alerting(
-    tenant_ids, rule_ids, action="add", rule_name="ALL_EventOutcome",
-):
-    process(result)
-```
-
-Публичный API не предоставляет изменения конфигурации алертинга. Метод использует существующие приватные методы `get_settings()` и `update_settings_by_id()`, поддерживает `action="add"` и `"delete"`, сохраняет остальные правила сегментации. Тенанты задаются явно; отсутствие настроек любого запрошенного тенанта обнаруживается до первой записи. Результат содержит `tenantID`, `settingsID`, `status`. При отсутствии изменений PUT не выполняется; при ошибке предыдущие успешные изменения не откатываются.
-
-## Зашифрованный кеш приватной сессии
-
-Установка необязательной зависимости: `pip install "kuma-api[session-cache]"`.
-
-```python
-from kuma.private.session_cache import PrivateSessionCache
-
-cache = PrivateSessionCache("session.bin", fernet_key, max_age=8 * 3600)
-with cache.open_client(
-    url, username, password, version="4.2", verify=ca_bundle, timeout=(5, 30),
-) as private:
-    user = private.whoami()
-```
-
-Ключ Fernet получает приложение из своего хранилища секретов; KAPI не генерирует и не сохраняет ключ рядом с кешем. Файл содержит только шифротекст, связан с адресом Core, пользователем и версией KUMA без номера исправления, заменяется атомарно. Срок проверяется по аутентифицированной метке времени Fernet, не по `ctime`; сохранение обновляет возраст кеша. Отсутствующий, просроченный, повреждённый или принадлежащий другому подключению кеш считается отсутствующим.
-
-Сохранённая сессия проверяется через `whoami()`. Повторный вход выполняет существующий `PrivateClient` только после 401/403; ошибки TLS и сети не запускают повторный вход. Модифицирующие запросы автоматически не повторяются. `with` закрывает соединения, `logout()` отдельно завершает серверную сессию. Права на файл и хранение ключа контролирует приложение. Для отдельного сохранения и загрузки доступны `cache.save(private)` и `cache.load(url, username, version)`.
-
-## Проверки
-
-```powershell
-.venv/Scripts/python -m pytest tests/test_resource_workflows.py tests/test_alerting_workflow.py tests/test_session_cache.py
-.venv/Scripts/python scripts/check_workflows.py --version 3.4 --report .artifacts/workflows-3.4.json
-.venv/Scripts/python scripts/check_workflows.py --version 4.2 --report .artifacts/workflows-4.2.json
-```
-
-Профили берутся из `.env`: `TEST_KUMA_*` для 3.4, `TEST_KUMA42_*` для 4.2; конфигурация и CA обрабатываются тем же `StandConfig`, что в `scripts/check_stand.py`. По умолчанию проверяются публичный отчёт и связи. Флаг `--mutations` создаёт только ресурсы с уникальным префиксом текущего запуска, проверяет перенос, конфликты, привязки, синхронизацию и кеш сессии, затем удаляет временные ресурсы через приватный API. Для переноса нужны два доступных тенанта, кроме Shared. Работающие сервисы не создаются и не перезагружаются. Настройки алертинга на стенде проверяются без записи на уже существующей привязке; изменение покрывается локальными тестами.
-
-Для очистки исправлен существующий `PrivateClient.delete_resource()`: на KUMA 3/4 используется `DELETE resources/{kind}/{id}`, проверенный на обоих стендах. Формат результата `(text, status)` сохранён; маршрут KUMA 2 не менялся.

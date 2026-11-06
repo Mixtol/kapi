@@ -65,6 +65,41 @@ def test_file_downloads_stream_and_close(monkeypatch, tmp_path, method, args):
     assert not list(tmp_path.glob("*.part"))
 
 
+@pytest.mark.parametrize("bom", [b"", b"\xef\xbb\xbf"])
+@pytest.mark.parametrize("mode", ["text", "file", "stream"])
+def test_dictionary_csv_utf8_without_charset(monkeypatch, tmp_path, bom, mode):
+    text = 'key,value\n"ключ","запятая,\nкавычка"\n'
+    raw = bom + text.encode("utf-8")
+    response = StreamingResponse([raw[i : i + 1] for i in range(len(raw))])
+    response.headers = {"Content-Type": "text/csv"}
+    response.encoding = "ISO-8859-1"
+    with RestClient("example.invalid", "test-token", version="4.2") as client:
+        monkeypatch.setattr(client.session, "request", Mock(return_value=response))
+        if mode == "text":
+            assert client.dictionaries.content("dictionary", stream=False) == (
+                200,
+                text,
+            )
+        elif mode == "file":
+            path = tmp_path / "dictionary.csv"
+            client.dictionaries.content("dictionary", filepath=path, stream=False)
+            assert path.read_bytes() == raw
+        else:
+            _, stream = client.dictionaries.content("dictionary")
+            with stream:
+                assert b"".join(stream) == raw
+    response.close.assert_called_once()
+
+
+def test_dictionary_text_decode_failure_closes_response(monkeypatch):
+    response = StreamingResponse([b"key,value\nkey,\xff\n"])
+    with RestClient("example.invalid", "test-token", version="4.2") as client:
+        monkeypatch.setattr(client.session, "request", Mock(return_value=response))
+        with pytest.raises(UnicodeDecodeError):
+            client.dictionaries.content("dictionary", stream=False)
+    response.close.assert_called_once()
+
+
 def test_backup_defaults_to_a_closeable_stream(monkeypatch):
     response = StreamingResponse([b"one", b"two"])
     with RestClient("example.invalid", "test-token") as client:

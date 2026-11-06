@@ -22,15 +22,20 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
         timeout=None,
     ):
         """Download UTF-8 CSV. Use stream=False to return a string in memory."""
-        return self._download(
+        status, downloaded = self._download(
             "dictionaries",
             filepath,
-            stream=stream,
+            stream=True,
             chunk_size=chunk_size,
             timeout=timeout,
             params={"dictionaryID": dictionary_id},
             headers={"Accept": "text/plain; charset=utf-8"},
         )
+        if filepath is None and not stream:
+            # KUMA 4.2 sends text/csv without a charset; requests assumes Latin-1.
+            with downloaded:
+                return status, b"".join(downloaded).decode("utf-8-sig")
+        return status, downloaded
 
     def add_row(
         self,
@@ -61,7 +66,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
         )
 
     def delete_row(
-        self, dictionary_id: str, row_key: str, need_reload: int = 0
+        self, dictionary_id: str, row_key: str, need_reload: int = 0, *, timeout=None
     ) -> APIResult:
         """
         Delete row from dictionary by key.
@@ -69,13 +74,16 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
             dictionary_id* (str): Dictionary UUID
             row_key* (str): Key column field value
             need_reload (int): 0|1 Reload services thats using resource
+            timeout: Seconds or (connect, read); None uses the client timeout.
         """
         params = {
             "dictionaryID": dictionary_id,
             "rowKey": row_key,
             "needReload": need_reload,
         }
-        return self._make_request("POST", "dictionaries/delete_row", params=params)
+        return self._make_request(
+            "POST", "dictionaries/delete_row", params=params, timeout=timeout
+        )
 
     def update(
         self,

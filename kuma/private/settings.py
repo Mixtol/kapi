@@ -17,6 +17,22 @@ class PrivateSettings:
         Использует приватный API: публичный API не предоставляет запись настроек.
         Останавливается при первой HTTP-ошибке; предыдущие изменения сохраняются.
         Запросы и копирование выполняют get_settings и update_settings_by_id.
+
+        Args:
+            tenant_ids: Явный непустой список ID тенантов.
+            correlation_rules: Непустой список ID корреляционных правил.
+            action: add — добавить правила, delete — удалить.
+            rule_name: Имя правила сегментации, по умолчанию ALL_EventOutcome.
+
+        Yields:
+            Словарь с tenantID, settingsID и HTTP-статусом status.
+
+        Остальные правила сегментации сохраняются; без изменений PUT не выполняется.
+        Отсутствие настроек любого тенанта обнаруживается до первой записи.
+
+        Example:
+            for result in private.iter_update_alerting(tenant_ids, rule_ids):
+                print(result["tenantID"], result["status"])
         """
         from kuma.errors import APIError
 

@@ -16,6 +16,24 @@ class PrivateSessionCache:
     хранилища секретов; библиотека не создаёт и не сохраняет ключ. Срок действия
     проверяется по аутентифицированной метке времени Fernet. Повреждённый или
     просроченный кеш считается отсутствующим; ошибки TLS и входа передаются выше.
+
+    Установка зависимости: pip install "kuma-api[session-cache]".
+
+    Args:
+        path: Путь к файлу кеша в существующем каталоге.
+        key: Ключ Fernet из хранилища секретов приложения.
+        max_age: Срок действия кеша в секундах, по умолчанию 8 часов.
+
+    В файле хранится только шифротекст; права на него контролирует приложение.
+    Версия сравнивается по major.minor. Сохранение атомарно заменяет файл
+    и обновляет возраст кеша. Для отдельных операций доступны save() и load().
+
+    Example:
+        cache = PrivateSessionCache("session.bin", fernet_key)
+        with cache.open_client(
+            url, username, password, version="4.2", verify=ca_bundle,
+        ) as private:
+            print(private.whoami())
     """
 
     def __init__(self, path, key, *, max_age=8 * 3600):
