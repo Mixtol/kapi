@@ -1,37 +1,50 @@
-from typing import Optional, Tuple
+from typing import Optional
 
-from kuma.rest._base import KumaRestAPIModule
+from kuma._common.transfers import CHUNK_SIZE
+from kuma.rest._base import APIResult, KumaRestAPIModule
 
 
 class KumaRestAPISystem(KumaRestAPIModule):
     """Methods for System."""
 
     def backup(
-        self, filepath: Optional[str] = None, timeout: int = 900
-    ) -> Tuple[int, str]:
+        self,
+        filepath: Optional[str] = None,
+        timeout=900,
+        *,
+        stream=True,
+        chunk_size=CHUNK_SIZE,
+    ):
         """
-        Creating binary Core backup data.
-        savepath: str - Where you want to save file (.tar.gz).
-        timeout: int - Seconds, increse for big instances.
+        Download a Core backup to a file or a managed chunk iterator.
+        Use stream=False explicitly to return the complete body in memory.
+        timeout is seconds or (connect, read) seconds, not an overall deadline.
         """
-        status_code, response = self._make_request(
-            "GET", "system/backup", timeout=timeout
+        return self._download(
+            "system/backup",
+            filepath,
+            stream=stream,
+            timeout=timeout,
+            chunk_size=chunk_size,
         )
-        if filepath and status_code == 200:
-            with open(filepath, "wb") as f:
-                f.write(response)
-            return status_code, filepath
-        return status_code, response
 
     def restore(
-        self, filepath: Optional[str] = None, data: Optional[bytes] = None
-    ) -> Tuple[int, str]:
+        self,
+        filepath: Optional[str] = None,
+        data=None,
+        *,
+        timeout=900,
+        chunk_size=CHUNK_SIZE,
+    ) -> APIResult:
         """
         Restoring core from .tar.gz with the backup copy
         filepath: str - Relative path to bak file
         data: bytes - Bin backup data
         """
-        if filepath:
-            with open(filepath, "rb") as f:
-                data = f.read()
-        return self._make_request("POST", "system/restore", data=data)
+        return self._upload(
+            "system/restore",
+            data,
+            filepath=filepath,
+            timeout=timeout,
+            chunk_size=chunk_size,
+        )

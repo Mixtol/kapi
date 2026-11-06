@@ -1,0 +1,3048 @@
+{
+  "source": "https://support.kaspersky.com/help/KUMA/RestAPI/3.0/openapi3_0.json",
+  "swagger_ui": "https://support.kaspersky.com/help/KUMA/3.4/common/RestAPI/3/swagger_dist/dist/index.html",
+  "kuma_version": "3.4",
+  "api_version": "3.0",
+  "retrieved": "2026-11-05",
+  "sha256": "565e20732390cacb0a2a0107ce218620e2e2ff360f9070d0735fca75a7934caa",
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/activeLists",
+      "operation": "active_list_list",
+      "parameters": [
+        {
+          "description": "Correlator service ID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "correlatorID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/activeLists/import",
+      "operation": "active_list_import",
+      "parameters": [
+        {
+          "description": "Correlator service ID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "correlatorID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Format of imported entries.",
+          "example": "internal",
+          "in": "query",
+          "name": "format",
+          "required": true,
+          "schema": {
+            "enum": [
+              "csv",
+              "tsv",
+              "internal"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Active list ID. It is required if activeListName is not specified.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "activeListID",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Active list name. It is required if activeListID is not specified.",
+          "example": "Attackers",
+          "in": "query",
+          "name": "activeListName",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "The name of the field in the header of the CSV or TSV file that will be used as the key field of the active list record.\\\nThe values of this field must be unique.\\\nIt is required for the CSV and TSV formats only.",
+          "example": "ip",
+          "in": "query",
+          "name": "keyField",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Clear the active list before importing.\\\nIf the parameter is present in the URL query, then its value is assumed to be true.\\\nThe values specified by the user are ignored.",
+          "example": "/api/v2.1/activeLists/import?clear",
+          "in": "query",
+          "name": "clear",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "body": {
+        "csv": {
+          "type": "string"
+        },
+        "internal": {
+          "type": "string"
+        },
+        "tsv": {
+          "type": "string"
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/alerts",
+      "operation": "get_alerts",
+      "parameters": [
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Entity ID. If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Tenant ID.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.\\\nIf the user does not have the required role in the specified tenant, then this tenant is ignored.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "tenantID",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Alert field name for descending sorting and period search (from - to)",
+          "in": "query",
+          "name": "timestampField",
+          "schema": {
+            "default": "lastSeen",
+            "enum": [
+              "lastSeen",
+              "firstSeen"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Lower limit of the period in the formatRFC3339 format",
+          "example": "2024-09-06T00:00:00.000Z",
+          "in": "query",
+          "name": "from",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Upper limit of the period in the formatRFC3339 format",
+          "example": "2024-09-06T00:00:00.000Z",
+          "in": "query",
+          "name": "to",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Search by alert status",
+          "in": "query",
+          "name": "status",
+          "schema": {
+            "items": {
+              "enum": [
+                "new",
+                "assigned",
+                "closed",
+                "escalated"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Include normalized KUMA events related to the detected alerts in the response.\\\n\t\t\t\tIf the parameter is specified in the URL query, its value is accepted as true.\\\n\t\t\t\tThe values specified by the user are ignored.",
+          "in": "query",
+          "name": "withEvents",
+          "schema": {
+            "type": "boolean"
+          }
+        },
+        {
+          "description": "Include information about assets and accounts related to the detected alerts in the response.\\\n\t\t\t\tIf the parameter is specified in the URL query, its value is accepted as true.\\\n\t\t\t\tThe values specified by the user are ignored.",
+          "in": "query",
+          "name": "withAffected",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/alerts/assign",
+      "operation": "assign_alert",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "ids",
+            "userId"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "userId": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/alerts/close",
+      "operation": "close_alert",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "id",
+            "reason"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "responded",
+                "incorrect data",
+                "incorrect correlation rule"
+              ]
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/alerts/comment",
+      "operation": "comment_alert",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "alertID",
+            "comment"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "alertID": {
+              "type": "string"
+            },
+            "comment": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/alerts/id/{id}",
+      "operation": "get_alert",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/alerts/link-event",
+      "operation": "link_alert",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "alertID",
+            "clusterID",
+            "eventID",
+            "eventTimestamp"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "alertID": {
+              "type": "string"
+            },
+            "clusterID": {
+              "type": "string"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "eventID": {
+              "type": "string"
+            },
+            "eventTimestamp": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/alerts/unlink-event",
+      "operation": "unlink_alert",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "alertID",
+            "eventID"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "alertID": {
+              "type": "string"
+            },
+            "eventID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/assets",
+      "operation": "get_assets",
+      "parameters": [
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Entity ID. If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Tenant ID.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.\\\nIf the user does not have the required role in the specified tenant, then this tenant is ignored.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "tenantID",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Asset FQDN. Case-insensitive regular expression (PCRE).",
+          "example": "example.com",
+          "in": "query",
+          "name": "fqdn",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Asset IP address. Case-insensitive regular expression (PCRE).",
+          "example": "192\\.168\\..*",
+          "in": "query",
+          "name": "ip",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Asset MAC address. Case-insensitive regular expression (PCRE).",
+          "example": "00:1C:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}",
+          "in": "query",
+          "name": "mac",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/assets/delete",
+      "operation": "delete_assets",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "tenantID"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "fqdns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ipAddresses": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tenantID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/assets/import",
+      "operation": "import_assets",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "tenantID",
+            "assets"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "assets": {
+              "type": "array"
+            },
+            "tenantID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/contextTables",
+      "operation": "context_tables_get",
+      "parameters": [
+        {
+          "description": "Correlator service ID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "correlatorID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/contextTables/export",
+      "operation": "context_tables_export",
+      "parameters": [
+        {
+          "description": "Correlator service ID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "correlatorID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Context table ID. It is required if contextTableName is not specified.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "contextTableID",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Name of the context table. It is required if contextTableID is not specified.",
+          "example": "Attackers",
+          "in": "query",
+          "name": "contextTableName",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/contextTables/import",
+      "operation": "context_tables_import",
+      "parameters": [
+        {
+          "description": "Correlator service ID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "correlatorID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Format of imported entries.",
+          "example": "internal",
+          "in": "query",
+          "name": "format",
+          "required": true,
+          "schema": {
+            "enum": [
+              "csv",
+              "tsv",
+              "internal"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Context table ID. It is required if contextTableName is not specified.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "contextTableID",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Name of the context table. It is required if contextTableID is not specified.",
+          "example": "Attackers",
+          "in": "query",
+          "name": "contextTableName",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Clear the context table before importing a record.\\\nIf the parameter is present in the URL query, its value is assumed to be true.\\\nThe values specified by the user are ignored.",
+          "example": "/api/v2.1/contextTables/import?clear",
+          "in": "query",
+          "name": "clear",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "body": {
+        "csv": {
+          "type": "string"
+        },
+        "internal": {
+          "type": "string"
+        },
+        "tsv": {
+          "type": "string"
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/dictionaries",
+      "operation": "get_dictionary",
+      "parameters": [
+        {
+          "description": "ID of the dictionary that will be updated.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "dictionaryID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/dictionaries/add_row",
+      "operation": "add_dictionary_row",
+      "parameters": [
+        {
+          "description": "ID of the dictionary that will be updated.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "dictionaryID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of the row that will be added, updated, or deleted.",
+          "example": "key3",
+          "in": "query",
+          "name": "rowKey",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specifies whether to add a new row or overwrite an existing one:\\\n0 - if the row exists, a new row is not added and the existing row remains unchanged.\\\n1 - overwrite an existing row.",
+          "example": 0,
+          "in": "query",
+          "name": "overwriteExist",
+          "schema": {
+            "default": 1,
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Specifies whether to reload the services that use the specified dictionary:\\\n\t\t0 - do not reload the services that use the specified dictionary.\\\n1 - reload the services that use the specified dictionary.\\\n\\\nOnly used if the dictionary's kind is set to \"dictionary\". If the dictionary's kind is set to \"table\", parameters of services that use the dictionary are always updated.\\\n\\\nThe following steps are usually used to reduce the number of service updates when multiple rows are modified:\n- When adding, changing, or deleting several rows, perform all operations except for the last one with needReload=0.\n- Perform the last operation on dictionary row without specifying needReload, i.e. the use default value needReload=1\\\n\\\nFor a single operation with a row, the needReload parameter value is not required to update the services that use the dictionary.",
+          "example": 0,
+          "in": "query",
+          "name": "needReload",
+          "schema": {
+            "default": 1,
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "type": "object"
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/dictionaries/delete_row",
+      "operation": "del_dictionary_row",
+      "parameters": [
+        {
+          "description": "ID of the dictionary that will be updated.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "dictionaryID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of the row that will be added, updated, or deleted.",
+          "example": "key3",
+          "in": "query",
+          "name": "rowKey",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specifies whether to reload the services that use the specified dictionary:\\\n\t\t0 - do not reload the services that use the specified dictionary.\\\n1 - reload the services that use the specified dictionary.\\\n\\\nOnly used if the dictionary's kind is set to \"dictionary\". If the dictionary's kind is set to \"table\", parameters of services that use the dictionary are always updated.\\\n\\\nThe following steps are usually used to reduce the number of service updates when multiple rows are modified:\n- When adding, changing, or deleting several rows, perform all operations except for the last one with needReload=0.\n- Perform the last operation on dictionary row without specifying needReload, i.e. the use default value needReload=1\\\n\\\nFor a single operation with a row, the needReload parameter value is not required to update the services that use the dictionary.",
+          "example": 0,
+          "in": "query",
+          "name": "needReload",
+          "schema": {
+            "default": 1,
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/dictionaries/update",
+      "operation": "update_dictionary",
+      "parameters": [
+        {
+          "description": "ID of the dictionary that will be updated.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "dictionaryID",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specifies whether to reload the services that use the specified dictionary:\\\n\t\t0 - do not reload the services that use the specified dictionary.\\\n1 - reload the services that use the specified dictionary.\\\n\\\nOnly used if the dictionary's kind is set to \"dictionary\". If the dictionary's kind is set to \"table\", parameters of services that use the dictionary are always updated.\\\n\\\nThe following steps are usually used to reduce the number of service updates when multiple rows are modified:\n- When adding, changing, or deleting several rows, perform all operations except for the last one with needReload=0.\n- Perform the last operation on dictionary row without specifying needReload, i.e. the use default value needReload=1\\\n\\\nFor a single operation with a row, the needReload parameter value is not required to update the services that use the dictionary.",
+          "example": 0,
+          "in": "query",
+          "name": "needReload",
+          "schema": {
+            "default": 1,
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          }
+        }
+      ],
+      "body": {
+        "multipart/form-data": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/download/{id}",
+      "operation": "active_list_download",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/events",
+      "operation": "search_events",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "period",
+            "sql"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "clusterID": {
+              "type": "string"
+            },
+            "emptyFields": {
+              "type": "boolean"
+            },
+            "period": {},
+            "rawTimestamps": {
+              "type": "boolean"
+            },
+            "sql": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/events/clusters",
+      "operation": "cluster_events",
+      "parameters": [
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Entity ID. If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Tenant ID.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.\\\nIf the user does not have the required role in the specified tenant, then this tenant is ignored.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "tenantID",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/folders/",
+      "operation": "get_folders",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Maximum number of entities to return, default value: 250",
+          "example": 100,
+          "in": "query",
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Number of entities to skip before adding entities to the result.",
+          "example": 10,
+          "in": "query",
+          "name": "offset",
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Columns for sorting. If the parameter is specified several times, then sorting will be performed for the specified columns.\\\n\t\tUse \"-\" before column name to specify the descending order.",
+          "example": "name",
+          "in": "query",
+          "name": "order",
+          "schema": {
+            "default": "name",
+            "enum": [
+              "tenantID",
+              "kind",
+              "subKind",
+              "name",
+              "description",
+              "userID",
+              "parentID",
+              "createdAt"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Kind of entities in folders. If the parameter is specified several times, then folders with the specified kind will be returned.",
+          "example": "resource",
+          "in": "query",
+          "name": "kind",
+          "schema": {
+            "enum": [
+              "resource",
+              "report",
+              "dashboard"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Sub-kind of folders. Applicable only for folders with resources.",
+          "in": "query",
+          "name": "subKind",
+          "schema": {
+            "enum": [
+              "activeList",
+              "contextTable",
+              "aggregationRule",
+              "collector",
+              "connector",
+              "correlationRule",
+              "agent",
+              "correlator",
+              "destination",
+              "dictionary",
+              "enrichmentRule",
+              "filter",
+              "normalizer",
+              "proxy",
+              "responseRule",
+              "storage",
+              "search",
+              "eventPreset",
+              "secret",
+              "emailTemplate",
+              "segmentationRule",
+              "eventRouter"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Returned columns. If the parameter is specified several times, then response will contain the specified columns.\\\nOmit this parameter to return all fields.\\\nColumn 'id' is always returned",
+          "example": "name",
+          "in": "query",
+          "name": "column",
+          "schema": {
+            "enum": [
+              "tenantID",
+              "kind",
+              "subKind",
+              "name",
+              "description",
+              "userID",
+              "parentID",
+              "createdAt"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Selection of target tenants for the request.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "tenantIDs",
+          "required": true,
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/incidents",
+      "operation": "get_incidents",
+      "parameters": [
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Incident ID. If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": "INC-19",
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Tenant ID.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.\\\nIf the user does not have the required role in the specified tenant, then this tenant is ignored.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "tenantID",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Lower limit of the period in the RFC3339 format",
+          "example": "2024-09-06T00:00:00.000Z",
+          "in": "query",
+          "name": "from",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Upper limit of the period in the RFC3339 format",
+          "example": "2024-09-06T00:00:00.000Z",
+          "in": "query",
+          "name": "to",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Incident field name for descending sorting and period search (from - to)",
+          "in": "query",
+          "name": "timestampField",
+          "schema": {
+            "default": "createdAt",
+            "enum": [
+              "createdAt",
+              "updatedAt"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Search by incident status.",
+          "in": "query",
+          "name": "status",
+          "schema": {
+            "items": {
+              "enum": [
+                "closed",
+                "assigned",
+                "open"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Search using case-insensitive regular expression in the following fields:\\\n\t\t\t\tname,\\\n\t\t\t\tassigneeName,\\\n\t\t\t\tassigneeLogin,\\\n\t\t\t\tassigneeEMail,\\\n\t\t\t\talerts.correlationRuleNames,\\\n\t\t\t\tassets.displayName,\\\n\t\t\t\tassets.fqdn,\\\n\t\t\t\tassets.ipAddress,\\\n\t\t\t\taccounts.displayName,\\\n\t\t\t\taccounts.sAMAccountName,\\\n\t\t\t\taccounts.userPrincipalName",
+          "example": "^incident_1$",
+          "in": "query",
+          "name": "search",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/incidents/assign",
+      "operation": "assign_incident",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "incidentIDs",
+            "assignee"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "assignee": {
+              "type": "string"
+            },
+            "incidentIDs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/incidents/close",
+      "operation": "close_incident",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "incidentIDs",
+            "resolution"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "incidentIDs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "resolution": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ]
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/incidents/comment",
+      "operation": "comment_incident",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "id",
+            "comment"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "comment": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/incidents/create",
+      "operation": "create_incident",
+      "parameters": [
+        {
+          "description": "True for calculating priority from alert (priority in incident must be 0).",
+          "in": "query",
+          "name": "calcPriority",
+          "schema": {
+            "default": false,
+            "type": "boolean"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "name",
+            "tenantID",
+            "priority"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "accounts": {
+              "type": "array"
+            },
+            "alerts": {
+              "type": "array"
+            },
+            "assets": {
+              "type": "array"
+            },
+            "assigneeId": {
+              "type": "string"
+            },
+            "availableTenants": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "category": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "firstEventTime": {
+              "type": "string"
+            },
+            "lastEventTime": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "priority": {
+              "type": "integer"
+            },
+            "tenantID": {
+              "type": "string"
+            },
+            "type": {}
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/incidents/id/{id}",
+      "operation": "get_incident",
+      "parameters": [
+        {
+          "description": "Incident ID.",
+          "example": "INC-19",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/incidents/link",
+      "operation": "link_incident",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "incidentID",
+            "alertIDs"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "alertIDs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "incidentID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/incidents/unlink",
+      "operation": "unlink_incident",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "incidentID",
+            "alertIDs"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "alertIDs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "incidentID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/reports/",
+      "operation": "get_reports",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Maximum number of entities to return, default value: 250",
+          "example": 100,
+          "in": "query",
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Number of entities to skip before adding entities to the result.",
+          "example": 10,
+          "in": "query",
+          "name": "offset",
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Columns for sorting. If the parameter is specified several times, then sorting will be performed for the specified columns.\\\n\t\tUse \"-\" before column name to specify the descending order.",
+          "example": "name",
+          "in": "query",
+          "name": "order",
+          "schema": {
+            "default": "-createdAt",
+            "enum": [
+              "name",
+              "createdAt"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Selection of target tenants for the request.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "query",
+          "name": "tenantIDs",
+          "required": true,
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/resources",
+      "operation": "get_resources",
+      "parameters": [
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Entity ID. If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Tenant ID.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.\\\nIf the user does not have the required role in the specified tenant, then this tenant is ignored.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "tenantID",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Resource type.\\\n If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "storage"
+          ],
+          "in": "query",
+          "name": "kind",
+          "schema": {
+            "items": {
+              "enum": [
+                "collector",
+                "correlator",
+                "storage",
+                "activeList",
+                "aggregationRule",
+                "connector",
+                "correlationRule",
+                "dictionary",
+                "enrichmentRule",
+                "destination",
+                "filter",
+                "normalizer",
+                "responseRule",
+                "search",
+                "agent",
+                "proxy",
+                "secret",
+                "contextTable",
+                "emailTemplate",
+                "segmentationRule",
+                "eventRouter"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "User ID.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "userID",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/resources/download/{id}",
+      "operation": "download_resource",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/resources/export",
+      "operation": "export_resources",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "ids",
+            "password",
+            "tenantID"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "password": {
+              "type": "string"
+            },
+            "tenantID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/resources/import",
+      "operation": "import_resources",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "required": [
+            "fileID",
+            "password",
+            "tenantID",
+            "actions"
+          ],
+          "properties": {
+            "actions": {
+              "type": "object",
+              "enum": [
+                0,
+                1,
+                2
+              ]
+            },
+            "fileID": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "tenantID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/resources/toc",
+      "operation": "toc_resources",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "required": [
+            "fileID",
+            "password"
+          ],
+          "properties": {
+            "fileID": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/resources/upload",
+      "operation": "upload_resources",
+      "parameters": [],
+      "body": {
+        "binary": {}
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/resources/{kind}/create",
+      "operation": "create_resource",
+      "parameters": [
+        {
+          "description": "Resource kind.",
+          "in": "path",
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "correlator",
+              "storage",
+              "activeList",
+              "contextTable",
+              "correlationRule",
+              "enrichmentRule",
+              "destination",
+              "filter",
+              "normalizer",
+              "responseRule",
+              "search",
+              "emailTemplate",
+              "collector",
+              "agent",
+              "eventRouter",
+              "connector",
+              "aggregationRule",
+              "dictionary",
+              "proxy",
+              "dataMiningRule"
+            ],
+            "type": "string"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "name",
+            "kind",
+            "tenantID"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "autoCreated": {
+              "type": "boolean"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "eventLogAgentID": {
+              "type": "string"
+            },
+            "exportID": {
+              "type": "string"
+            },
+            "folderID": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "packageIntegrationResource": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object"
+            },
+            "repositoryPackageID": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tenantID": {
+              "type": "string"
+            },
+            "tenantName": {
+              "type": "string"
+            },
+            "updated": {
+              "type": "string"
+            },
+            "userID": {
+              "type": "string"
+            },
+            "userName": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/resources/{kind}/validate",
+      "operation": "validate_resource",
+      "parameters": [
+        {
+          "description": "Resource kind.",
+          "in": "path",
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "correlator",
+              "storage",
+              "activeList",
+              "contextTable",
+              "correlationRule",
+              "enrichmentRule",
+              "destination",
+              "filter",
+              "normalizer",
+              "responseRule",
+              "search",
+              "emailTemplate",
+              "collector",
+              "agent",
+              "eventRouter",
+              "connector",
+              "aggregationRule",
+              "dictionary",
+              "proxy",
+              "dataMiningRule"
+            ],
+            "type": "string"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "name",
+            "kind",
+            "tenantID"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "autoCreated": {
+              "type": "boolean"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "eventLogAgentID": {
+              "type": "string"
+            },
+            "exportID": {
+              "type": "string"
+            },
+            "folderID": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "packageIntegrationResource": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object"
+            },
+            "repositoryPackageID": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tenantID": {
+              "type": "string"
+            },
+            "tenantName": {
+              "type": "string"
+            },
+            "updated": {
+              "type": "string"
+            },
+            "userID": {
+              "type": "string"
+            },
+            "userName": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/resources/{kind}/{id}",
+      "operation": "get_resource",
+      "parameters": [
+        {
+          "description": "Resource kind.",
+          "in": "path",
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "correlator",
+              "storage",
+              "activeList",
+              "contextTable",
+              "correlationRule",
+              "enrichmentRule",
+              "destination",
+              "filter",
+              "normalizer",
+              "responseRule",
+              "search",
+              "emailTemplate",
+              "collector",
+              "agent",
+              "eventRouter",
+              "connector",
+              "aggregationRule",
+              "dictionary",
+              "proxy",
+              "dataMiningRule"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "For the filter, only the code is returned. \\\nTo use it, it is enough to specify the parameter in the request without values.",
+          "in": "query",
+          "name": "filterCodeOnly",
+          "schema": {}
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/resources/{kind}/{id}",
+      "operation": "update_resource",
+      "parameters": [
+        {
+          "description": "Resource kind.",
+          "in": "path",
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "correlator",
+              "storage",
+              "activeList",
+              "contextTable",
+              "correlationRule",
+              "enrichmentRule",
+              "destination",
+              "filter",
+              "normalizer",
+              "responseRule",
+              "search",
+              "emailTemplate",
+              "collector",
+              "agent",
+              "eventRouter",
+              "connector",
+              "aggregationRule",
+              "dictionary",
+              "proxy",
+              "dataMiningRule"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "name",
+            "kind",
+            "tenantID"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "autoCreated": {
+              "type": "boolean"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "eventLogAgentID": {
+              "type": "string"
+            },
+            "exportID": {
+              "type": "string"
+            },
+            "folderID": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "packageIntegrationResource": {
+              "type": "boolean"
+            },
+            "payload": {
+              "type": "object"
+            },
+            "repositoryPackageID": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tenantID": {
+              "type": "string"
+            },
+            "tenantName": {
+              "type": "string"
+            },
+            "updated": {
+              "type": "string"
+            },
+            "userID": {
+              "type": "string"
+            },
+            "userName": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/resources/{kind}/{id}/history",
+      "operation": "get_resource_history_list",
+      "parameters": [
+        {
+          "description": "Resource kind.",
+          "in": "path",
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "correlator",
+              "storage",
+              "activeList",
+              "contextTable",
+              "correlationRule",
+              "enrichmentRule",
+              "destination",
+              "filter",
+              "normalizer",
+              "responseRule",
+              "search",
+              "emailTemplate",
+              "collector",
+              "agent",
+              "eventRouter",
+              "connector",
+              "aggregationRule",
+              "proxy",
+              "dataMiningRule"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "in": "query",
+          "name": "size",
+          "schema": {
+            "default": 250,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Sorts the results by this field.\n\t\t\t\tIf a \"-\" is placed in front of the value, the results are sorted in descending order.\\\n\t\t\t\tPossible values: changeNumber,updatedAt,userLogin",
+          "example": "changeNumber",
+          "in": "query",
+          "name": "sort",
+          "schema": {
+            "default": "-changeNumber",
+            "type": "string"
+          }
+        },
+        {
+          "description": "User Login.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "admin"
+          ],
+          "in": "query",
+          "name": "userLogin",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/resources/{kind}/{id}/history/{changeNumber}",
+      "operation": "get_resource_history_version",
+      "parameters": [
+        {
+          "description": "Resource kind.",
+          "in": "path",
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "correlator",
+              "storage",
+              "activeList",
+              "contextTable",
+              "correlationRule",
+              "enrichmentRule",
+              "destination",
+              "filter",
+              "normalizer",
+              "responseRule",
+              "search",
+              "emailTemplate",
+              "collector",
+              "agent",
+              "eventRouter",
+              "connector",
+              "aggregationRule",
+              "proxy",
+              "dataMiningRule"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "number of version",
+          "in": "path",
+          "name": "changeNumber",
+          "required": true,
+          "schema": {
+            "format": "uint32",
+            "type": "integer"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/resources/{kind}/{id}/history/{changeNumber}",
+      "operation": "post_resource_history_version",
+      "parameters": [
+        {
+          "description": "Resource kind.",
+          "in": "path",
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "correlator",
+              "storage",
+              "activeList",
+              "contextTable",
+              "correlationRule",
+              "enrichmentRule",
+              "destination",
+              "filter",
+              "normalizer",
+              "responseRule",
+              "search",
+              "emailTemplate",
+              "collector",
+              "agent",
+              "eventRouter",
+              "connector",
+              "aggregationRule",
+              "proxy",
+              "dataMiningRule"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "number of version",
+          "in": "path",
+          "name": "changeNumber",
+          "required": true,
+          "schema": {
+            "format": "uint32",
+            "type": "integer"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/services",
+      "operation": "get_services",
+      "parameters": [
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Entity ID. If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Tenant ID.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.\\\nIf the user does not have the required role in the specified tenant, then this tenant is ignored.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "tenantID",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Service FQDN. Case-insensitive regular expression (PCRE).",
+          "example": "example.com",
+          "in": "query",
+          "name": "fqdn",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Service type.\\\nIf the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": "storage",
+          "in": "query",
+          "name": "kind",
+          "schema": {
+            "enum": [
+              "collector",
+              "correlator",
+              "storage",
+              "agent"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "description": "Display only those services that executed the first start.\\\nIf the parameter is specified in the URL query, then its value is accepted as true.\\\nThe values specified by the user are ignored.\\\n\\\nExample: /api/v1/services?paired.",
+          "in": "query",
+          "name": "paired",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/services/create",
+      "operation": "create_service",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "resourceID"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "resourceID": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/services/{id}/activeLists/export/{list}",
+      "operation": "active_list_export",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of active list, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "list",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/services/{id}/activeLists/scan/{list}",
+      "operation": "active_list_scan",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "ID of active list, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "list",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specify start or end of the period as nanoseconds of unix timestamp.\\\nIf the 'pattern' parameter is specified, then this parameter is ignored.\\\nThe column specified in the 'sort' parameter is used as a source of data when this parameter is applied.\\\nThe start or end of the period depends on the sorting of the source column. If the sorting is ascending, then the start of the period is specified. If the sorting is descending, then the end of the period is specified.",
+          "example": 1704067200000000000,
+          "in": "query",
+          "name": "from",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specify the exact moment for excluding as nanoseconds of unix timestamp.\\\nIf the 'pattern' parameter is specified, then this parameter is ignored.\\\nThe column specified in the 'sort' parameter is used when this parameter is applied.",
+          "example": 1704067200000000000,
+          "in": "query",
+          "name": "exclude",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specify the string to search in key or value of the active list record.\\\nIf this parameter is specified, then the 'from' and 'exclude' parameters are ignored.",
+          "example": "foo",
+          "in": "query",
+          "name": "pattern",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specify the total number of returned records.",
+          "example": 1000,
+          "in": "query",
+          "name": "limit",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Specify the column for sorting. Available values: 'expires','created', and 'updated'.\\\nUse '-' in the beginning of the column name to specify the descending order. By default, when the '-' is not used, the sorting is ascending. The default value is '-updated'.\\\nValues specified in the 'from' and 'exclude' parameters are applied to filter out data in the column that you specified for sorting.",
+          "example": "expires",
+          "in": "query",
+          "name": "sort",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/services/{id}/reload",
+      "operation": "reload_service",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/services/{id}/restart",
+      "operation": "restart_service",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        202
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/settings/extendedFields/export",
+      "operation": "export_extended_fields",
+      "parameters": [],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/settings/extendedFields/import",
+      "operation": "import_extended_fields",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "array"
+        }
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/settings/id/{id}",
+      "operation": "get_custom_asset_settings",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/system/backup",
+      "operation": "system_backup",
+      "parameters": [],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/system/restore",
+      "operation": "system_restore",
+      "parameters": [],
+      "body": {
+        "binary": {}
+      },
+      "response_codes": [
+        204
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tasks/create",
+      "operation": "create_task",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "kind",
+            "tenantIDs"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "alertID": {
+              "type": "string"
+            },
+            "args": {
+              "type": "object"
+            },
+            "correlatorID": {
+              "type": "string"
+            },
+            "kata": {},
+            "kind": {
+              "type": "string",
+              "enum": [
+                "retroscan",
+                "event-export",
+                "ktl",
+                "kata",
+                "downloadAssets",
+                "downloadAccounts",
+                "downloadKICSAssets",
+                "updater"
+              ]
+            },
+            "ktl": {},
+            "manual": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            },
+            "replay": {},
+            "search": {},
+            "tenantIDs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tenantNames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "userID": {
+              "type": "string"
+            },
+            "workers": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/tenants",
+      "operation": "get_tenants",
+      "parameters": [
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "description": "Entity ID. If the parameter is specified several times, then a list is generated and the logical OR operator is applied.",
+          "example": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "in": "query",
+          "name": "id",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Entity name. Case-insensitive regular expression (PCRE).",
+          "example": "^My asset$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Only display the Main tenant.\\\nIf the parameter is specified in the URL query, then its value is accepted as true.\\\nThe values specified by the user are ignored.\\\nExample: /api/v1/tenants?main",
+          "in": "query",
+          "name": "main",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/tenants/create",
+      "operation": "create_tenant",
+      "parameters": [],
+      "body": {
+        "application/json": {
+          "type": "object",
+          "required": [
+            "name",
+            "epsLimit"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "epsLimit": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/users/",
+      "operation": "get_users",
+      "parameters": [
+        {
+          "description": "Search by name, login, and email using case-insensitive regular expression.",
+          "example": "user.*",
+          "in": "query",
+          "name": "pattern",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Search by login using case-insensitive regular expression.",
+          "example": "^login$",
+          "in": "query",
+          "name": "login",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Search by email using case-insensitive regular expression.",
+          "example": "^email$",
+          "in": "query",
+          "name": "email",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Search by name using case-insensitive regular expression.",
+          "example": "^name$",
+          "in": "query",
+          "name": "name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Sorts the results by this field.\n\t\t\t\tIf a \"-\" is placed in front of the value, the results are sorted in descending order.",
+          "example": "login",
+          "in": "query",
+          "name": "sort",
+          "schema": {
+            "default": "-name",
+            "type": "string"
+          }
+        },
+        {
+          "description": "If this parameter is true, then the result excludes the disabled users.",
+          "in": "query",
+          "name": "excludeDisabled",
+          "schema": {
+            "type": "boolean"
+          }
+        },
+        {
+          "description": "User role search.\n\t\t\t\tThe parameter must specify the role ID.\\\n\t\t\t\tCorrespondence of IDs and roles:\\\n\t\t\t\tMainAdmin : 9dd65e51-3b04-48f5-b132-c08bf9ad17d6\\\n\t\t\t\tSharedRole : ce9f7d9a-7a2e-48d8-acab-3432acbb0f4f\\\n\t\t\t\tTenantAdmin : b61cfd50-87c9-45d9-940d-5a6f5d4292a7\\\n\t\t\t\tAccessToCII : caa7c266-8149-442a-a2ba-e60961f1d6e9\\\n\t\t\t\tAccessToNcircc : 2448f469-a15e-46db-b989-6182616ffeba\\\n\t\t\t\tAnalyst1Line : 309ed903-99f0-462e-a43d-6edb7281f830\\\n\t\t\t\tAnalyst2Line : e57fae66-ec6d-46b9-8d9d-a29efbe04ca2\\\n\t\t\t\tJuniorAnalyst : 0e342bff-9fd6-47c9-9bf8-c58be4302acc",
+          "in": "query",
+          "name": "role",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Search for tenants in which the user has rights.\n\t\t\t\tThe parameter must contain the tenant's ID.",
+          "in": "query",
+          "name": "tenant",
+          "schema": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "description": "Page number. Starts with 1. The page size is 250 entries. If the parameter is not specified, the default value is 1.",
+          "example": 5,
+          "in": "query",
+          "name": "page",
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "in": "query",
+          "name": "size",
+          "schema": {
+            "default": 250,
+            "type": "integer"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/users/id/{id}",
+      "operation": "get_user",
+      "parameters": [
+        {
+          "description": "ID of entity, usually GUID.",
+          "example": "00000000-0000-0000-0000-000000000000",
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/users/whoami",
+      "operation": "whoami",
+      "parameters": [],
+      "body": {},
+      "response_codes": [
+        200
+      ]
+    }
+  ]
+}

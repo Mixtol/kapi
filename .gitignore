@@ -7,9 +7,27 @@
 *.log
 *.idea
 *env
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_ed25519
+!tests/fixtures/localhost-cert.pem
+!tests/fixtures/localhost-key.pem
 config.py
 *test*.py
+!tests/test_*.py
+!tests/fixtures/*.json
 # Folders
+.artifacts/
+.playwright-mcp/
+.pytest_cache/
+.venv/
 dist/
 __pycache__/
 *.egg-info/

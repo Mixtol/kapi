@@ -1,26 +1,34 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=84.2.1", "wheel>=0.48.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "kuma-api"
-version = "3.0.3"
+version = "4.2.0"
 description = "SDK для работы с API SIEM Kuma"
 readme = "README.md"
-requires-python = ">=3.9"
-license = { file = "LICENSE" }
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Anatolii", email = "mixtol21@gmail.com"},
 
 ]
 dependencies = [
-    "requests>=2.25.0"
+    "requests>=2.34.2,<3",
+    "urllib3>=2.8.0,<3",
+    "requests-toolbelt>=1.0,<2"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent"
 ]
 
+[project.optional-dependencies]
+session-cache = ["cryptography>=50.0.2"]
+
 [project.urls]
-Homepage = "https://support.kaspersky.com/help/KUMA/3.4/en-US/217973.htm"
+Homepage = "https://support.kaspersky.com/help/KUMA/4.2/common/RestAPI/3/swagger_dist/dist/index.html"
+
+[tool.setuptools.packages.find]
+include = ["kuma*"]

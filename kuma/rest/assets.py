@@ -1,11 +1,12 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List
 
-from kuma.rest._base import KumaRestAPIModule
+from kuma.rest._base import APIResult, KumaRestAPIModule
 
 
 class KumaRestAPIAssets(KumaRestAPIModule):
     """Methods for Assets."""
-    def search(self, **kwargs) -> Tuple[int, Union[List, str]]:
+
+    def search(self, **kwargs) -> APIResult:
         """
         Searching assets by provided filter.
 
@@ -13,20 +14,20 @@ class KumaRestAPIAssets(KumaRestAPIModule):
             page (int): Assets page number
             id (str): Asset UUID
             tenantID (str): Tenant UUID filter
-            name (str): Case-insensitive regex filter for Name
+            name (str): Case-insensitive filter (regex in 3.4, substring in 4.x) for Name
             fqdn (str): Asset FQDN filter
-            ip (str): Case-insensitive regex filter for IP
-            mac (str): Case-insensitive regex filter for MAC
+            ip (str): Case-insensitive filter (regex in 3.4, substring in 4.x) for IP
+            mac (str): Case-insensitive filter (regex in 3.4, substring in 4.x) for MAC
         """
         return self._make_request("GET", "assets", params=kwargs)
 
     def delete(
         self,
-        assets_fqdns: List[str],
-        assets_ids: List[str],
-        assets_ips: List[str],
-        tenant_id: str,
-    ) -> Tuple[int, Union[Dict, str]]:
+        assets_fqdns=None,
+        assets_ids=None,
+        assets_ips=None,
+        tenant_id=None,
+    ) -> APIResult:
         """
         Method for deleting tenant assets.
 
@@ -36,15 +37,19 @@ class KumaRestAPIAssets(KumaRestAPIModule):
             assets_ips (List[str]): Assets IPAddreses list
             tenant_id (str): Assets tenantID
         """
-        json = {
-            "fqdns": assets_fqdns,
-            "ids": assets_ids,
-            "ipAddresses": assets_ips,
-            "tenantID": tenant_id,
-        }
+        if not tenant_id or not any((assets_fqdns, assets_ids, assets_ips)):
+            raise ValueError("A tenant and at least one asset selector are required")
+        json = {"tenantID": tenant_id}
+        for key, values in (
+            ("fqdns", assets_fqdns),
+            ("ids", assets_ids),
+            ("ipAddresses", assets_ips),
+        ):
+            if values is not None:
+                json[key] = values
         return self._make_request("POST", "assets/delete", json=json)
 
-    def create(self, assets: List[Dict], tenant_id: str) -> Tuple[int, Union[Dict, str]]:
+    def create(self, assets: List[Dict], tenant_id: str) -> APIResult:
         """
         Import/create assets from JSON, see examples.
 

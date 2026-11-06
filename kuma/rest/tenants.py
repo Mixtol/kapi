@@ -1,17 +1,16 @@
-from typing import List, Tuple, Union
-
-from kuma.rest._base import KumaRestAPIModule
+from kuma.rest._base import APIResult, KumaRestAPIModule
 
 
 class KumaRestAPITenants(KumaRestAPIModule):
     """Methods for Tenants."""
-    def search(self, **kwargs) -> Tuple[int, Union[List, str]]:
+
+    def search(self, **kwargs) -> APIResult:
         """
-        Search tenants with filter
+        Search tenants with filters
         Args:
             page (int): Pagination page (1 by default)
             id (List[str]): Tenants UUID filter
-            name (str): Case-insensetine name regex filter
+            name (str): Case-insensitive filter (regex in 3.4, substring in 4.x)
             main (bool): Only display 'Main' tenant
         """
         return self._make_request("GET", "tenants", params=kwargs)
@@ -21,7 +20,7 @@ class KumaRestAPITenants(KumaRestAPIModule):
         name: str,
         eps_limit: int,
         description: str = "",
-    ) -> Tuple[int, Union[List, str]]:
+    ) -> APIResult:
         """
         Create tenant
         Args:

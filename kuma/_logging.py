@@ -1,27 +1,37 @@
 import logging
+import os
 from typing import Optional
 
 
 def configure_logging(
-    level: int = logging.WARNING,
+    level: Optional[int] = None,
     log_file: Optional[str] = None,
     format: str = "%(asctime)s|%(name)s|%(levelname)s|%(message)s",
 ) -> logging.Logger:
     """
-    Configure basic logging for the application.
+    Return the legacy library logger without configuring application logging.
+
+    With no arguments, preserve the application's logging configuration. Explicit
+    options affect only ``kuma._logging``; root and dependency loggers are untouched.
     Args:
-        level: Logging level (default: WARNING)
-        log_file: Optional file path for logging
-        format: Log message format
+        level: Optional level for this logger; None preserves its current level
+        log_file: Optional library-only log file; reuse an existing file handler
+        format: Format for a newly created file handler
     Returns:
         Configured logger instance
     """
-    handlers = [logging.StreamHandler()]
+    logger = logging.getLogger(__name__)
+    if level is not None:
+        logger.setLevel(level)
     if log_file:
-        handlers.append(logging.FileHandler(log_file))
-    logging.basicConfig(level=level, format=format, handlers=handlers)
-
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("requests").setLevel(logging.WARNING)
-
-    return logging.getLogger(__name__)
+        filename = os.path.normcase(os.path.abspath(log_file))
+        if not any(
+            isinstance(handler, logging.FileHandler)
+            and os.path.normcase(handler.baseFilename) == filename
+            for handler in logger.handlers
+        ):
+            formatter = logging.Formatter(format)
+            handler = logging.FileHandler(log_file, encoding="utf-8")
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+    return logger

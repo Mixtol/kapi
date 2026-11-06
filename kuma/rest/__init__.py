@@ -1,6 +1,13 @@
-from typing import Union
+import logging
+from typing import Optional
 
-from kuma.rest._base import KumaRestAPIBase
+from kuma._common.versions import (
+    DEFAULT_VERSION,
+    normalize_version,
+    resolve_default_version,
+)
+from kuma.errors import APIError
+from kuma.rest._base import KumaRestAPIBase, Timeout, Verify
 from kuma.rest.active_lists import KumaRestAPIActiveLists
 from kuma.rest.alerts import KumaRestAPIAlerts
 from kuma.rest.assets import KumaRestAPIAssets
@@ -45,17 +52,70 @@ class KumaRestAPI(KumaRestAPIBase):
         self,
         url: str,
         token: str,
-        verify: Union[bool, str],
-        timeout: int = KumaRestAPIBase.DEFAULT_TIMEOUT,
+        verify: Verify = True,
+        timeout: Timeout = KumaRestAPIBase.DEFAULT_TIMEOUT,
+        logger: Optional[logging.Logger] = None,
+        version: str = DEFAULT_VERSION,
     ):
-        super().__init__(url, token, verify, timeout)
+        version = resolve_default_version(version)
+        super().__init__(url, token, verify, timeout, logger, version=version)
         self._modules = {}
+
+    def get_version(self) -> str:
+        """Read Core's major.minor release without changing the configured version.
+
+        Uses public services listing; the server rejects a kind=core filter.
+        Different patch/build versions in a Core cluster are treated as one release.
+        Missing, malformed or conflicting Core versions raise APIError.
+        """
+        versions = set()
+        seen_pages = set()
+        page = 1
+        while True:
+            status, services = self.services.search(page=page)
+            if not isinstance(services, list) or any(
+                not isinstance(service, dict) for service in services
+            ):
+                raise APIError(
+                    "Unexpected services response while reading Core version", status
+                )
+            for service in services:
+                if service.get("kind") != "core":
+                    continue
+                try:
+                    versions.add(normalize_version(service.get("version")))
+                except (TypeError, ValueError) as exc:
+                    raise APIError(
+                        "Core returned an empty or invalid version", status
+                    ) from exc
+            if len(services) < 250:
+                break
+            signature = tuple(str(service.get("id")) for service in services)
+            if signature in seen_pages:
+                raise APIError(
+                    "Services pagination repeated a page while reading Core version",
+                    status,
+                )
+            seen_pages.add(signature)
+            page += 1
+        if not versions:
+            raise APIError(
+                "Core version is not visible in the public services list", status
+            )
+        if len(versions) != 1:
+            raise APIError(
+                "Core nodes report different major.minor versions: "
+                + ", ".join(sorted(versions)),
+                status,
+            )
+        return versions.pop()
 
     def _get_module(self, name: str):
         if name in self._module_classes:
-            if name not in self._modules:
-                self._modules[name] = self._module_classes[name](self)
-            return self._modules[name]
+            modules = self.__dict__.setdefault("_modules", {})
+            if name not in modules:
+                modules[name] = self._module_classes[name](self)
+            return modules[name]
         raise AttributeError(name)
 
     def __getattr__(self, name: str):

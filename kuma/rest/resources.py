@@ -1,19 +1,26 @@
-from typing import Dict, List, Optional, Tuple, Union
+import os
+from copy import deepcopy
+from typing import Dict, List, Optional
 
-from kuma.rest._base import KumaRestAPIModule
+from kuma._common.transfers import CHUNK_SIZE
+from kuma.rest._base import APIResult, KumaRestAPIModule, Timeout
+from kuma.rest.content_search import ResourceContentSearch
+from kuma.rest.resource_workflows import PublicResourceWorkflows
 
 
-class KumaRestAPIResources(KumaRestAPIModule):
+class KumaRestAPIResources(
+    ResourceContentSearch, PublicResourceWorkflows, KumaRestAPIModule
+):
     """Methods for Resources."""
 
-    def search(self, **kwargs) -> Tuple[int, Union[List, str]]:
+    def search(self, **kwargs) -> APIResult:
         """
         Search resources
         Args:
             page (int): Pagination page (1 by default)
             id (List[str]): Resources UUID filter
             tenantID (List[str]): Tenants UUID filter
-            name (str): Case-insensetine name regex filter
+            name (str): Case-insensitive filter (regex in 3.4, substring in 4.x)
             kind (List[str]): Resource kind filter (filter|correlationRule|...)
             userID (List[str]): Creator filter
         """
@@ -22,39 +29,63 @@ class KumaRestAPIResources(KumaRestAPIModule):
         }
         return self._make_request("GET", "resources", params=params)
 
-    def download(self, id: str) -> Tuple[int, Union[List, str]]:
+    def download(
+        self,
+        id: str,
+        filepath=None,
+        *,
+        stream=True,
+        chunk_size=CHUNK_SIZE,
+        timeout=None,
+        legacy=False,
+    ):
         """
         Download export file data
         Args:
             id (str): File ID as a result of resource export request.
         """
-        return self._make_request("GET", f"download/{id}")
+        endpoint = (
+            f"resources/download/{self._path(id)}"
+            if legacy
+            else f"download/{self._path(id)}"
+        )
+        return self._download(
+            endpoint, filepath, stream=stream, chunk_size=chunk_size, timeout=timeout
+        )
 
     def export(
         self,
         resources_ids: List[str],
         tenant_id: str,
-        password: str = "Kuma_secret_p@$$w0rd",
-    ) -> Tuple[int, Union[List, str]]:
+        password: Optional[str] = None,
+        *,
+        timeout: Optional[Timeout] = None,
+    ) -> APIResult:
         """
         Generating export file ID for download
         Args:
             resources_ids (List[str]): Resources UUID list to download
             tenant_id (str): Resources tenant UUID
             password (str): Future file open password
+            timeout: Seconds or (connect, read) seconds; None uses the client timeout
         """
-        json = {"ids": resources_ids, "password": password, "tenantID": tenant_id}
-        return self._make_request("POST", "resources/export", json=json)
+        if not password:
+            raise ValueError("An explicit export password is required")
+        password_field = "password" if self.contract_version == "3.4" else "newPassword"
+        body = {"ids": resources_ids, password_field: password, "tenantID": tenant_id}
+        return self._make_request(
+            "POST", "resources/export", json=body, timeout=timeout
+        )
 
     def import_data(
         self,
         file_id: str,
         tenant_id: str,
-        password: str = "Kuma_secret_p@$$w0rd",
+        password: Optional[str] = None,
         actions: Optional[Dict] = None,
-    ) -> Tuple[int, Union[List, str]]:
+    ) -> APIResult:
         """
-        Import content file uploded early from /upload method
+        Import content file uploaded earlier from /upload method
         Args:
             file_id (str): Uploaded file UUID returned by Core
             tenant_id (str): Destination resource tenant UUID
@@ -62,8 +93,10 @@ class KumaRestAPIResources(KumaRestAPIModule):
             actions (dict): Conflict resolve rules, see examples
                 0=ignore, 1=import, 2=replace
         """
+        if not password:
+            raise ValueError("An explicit import password is required")
         json = {
-            "actions": actions,
+            "actions": {} if actions is None else actions,
             "fileID": file_id,
             "password": password,
             "tenantID": tenant_id,
@@ -73,67 +106,84 @@ class KumaRestAPIResources(KumaRestAPIModule):
     def toc(
         self,
         file_id: str,
-        password: str = "Kuma_secret_p@$$w0rd",
-    ) -> Tuple[int, Union[List, str]]:
+        password: Optional[str] = None,
+    ) -> APIResult:
         """
         View content of uploaded resource file, recommended to use before import_data
         Args:
             file_id (str): Uploaded file UUID returned by Core
             password (str): File open password
         """
+        if not password:
+            raise ValueError("An explicit resource file password is required")
         json = {
             "fileID": file_id,
             "password": password,
         }
         return self._make_request("POST", f"resources/toc", json=json)
 
-    def upload(self, data: Union[bytes, str]) -> Tuple[int, Union[List, str]]:
+    def upload(self, data=None, *, filepath=None, timeout=None, chunk_size=CHUNK_SIZE):
         """
-        Download export file data
+        Upload a resource archive from a path, bytes, or a binary stream.
         Args:
             data (binary): File data or file path
         """
-        if isinstance(data, str):
-            with open(data, "rb") as f:
-                data = f.read()
-        return self._make_request("POST", "resources/upload", data=data)
+        if isinstance(data, (str, os.PathLike)):
+            if filepath is not None:
+                raise ValueError("Specify either filepath or data, not both")
+            filepath, data = data, None
+        return self._upload(
+            "resources/upload",
+            data,
+            filepath=filepath,
+            timeout=timeout,
+            chunk_size=chunk_size,
+        )
 
     def create(
         self,
         kind: str,
         resource: dict,
-    ) -> Tuple[int, Union[List, str]]:
+    ) -> APIResult:
         """
         Create resource from JSON
         Args:
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see examples.
         """
-        return self._make_request("POST", f"resources/{kind}/create", json=resource)
+        return self._make_request(
+            "POST", f"resources/{self._path(kind)}/create", json=resource
+        )
 
     def validate(
         self,
         kind: str,
         resource: dict,
-    ) -> Tuple[int, Union[List, str]]:
+    ) -> APIResult:
         """
         Validate resource JSON
         Args:
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see /create method.
         """
-        return self._make_request("POST", f"resources/{kind}/validate", json=resource)
+        return self._make_request(
+            "POST", f"resources/{self._path(kind)}/validate", json=resource
+        )
 
-    def get(self, kind: str, id: str) -> Tuple[int, Union[List, str]]:
+    def get(self, kind: str, id: str, *, filter_code_only=None, **kwargs) -> APIResult:
         """
         Get resource JSON
         Args:
             id (str): Resource UUID
             kind (str): Resource kind (correlationRule|dictionary|...)
         """
-        return self._make_request("GET", f"resources/{kind}/{id}")
+        if filter_code_only is not None:
+            kwargs["filterCodeOnly"] = filter_code_only
+        return self._make_request(
+            "GET", f"resources/{self._path(kind)}/{self._path(id)}", params=kwargs
+        )
 
-    def put(self, kind: str, id: str, resource: dict) -> Tuple[int, Union[List, str]]:
+    def put(self, kind: str, id: str, resource: dict) -> APIResult:
         """
         Modify|Update resource with JSON
         Args:
@@ -141,129 +191,75 @@ class KumaRestAPIResources(KumaRestAPIModule):
             kind (str): Resource kind (correlationRule|dictionary|...)
             resource (dict): Resource JSON object, see /create method.
         """
-        return self._make_request("PUT", f"resources/{kind}/{id}", json=resource)
+        return self._make_request(
+            "PUT", f"resources/{self._path(kind)}/{self._path(id)}", json=resource
+        )
 
-    def list_history(self, kind: str, id: str) -> Tuple[int, Union[List, str]]:
+    def list_history(self, kind: str, id: str, **kwargs) -> APIResult:
         """Getting all resource history versions
         id (str): Resource UUID
         kind (str): Resource kind (correlationRule|dictionary|...)
         """
-        return self._make_request("GET", f"resources/{kind}/{id}/history")
+        return self._make_request(
+            "GET",
+            f"resources/{self._path(kind)}/{self._path(id)}/history",
+            params=kwargs,
+        )
 
-    def get_history(
-        self, kind: str, id: str, history_id: int
-    ) -> Tuple[int, Union[List, str]]:
+    def get_history(self, kind: str, id: str, history_id: int) -> APIResult:
         """Getting resource history version with specified kind, ID and version number
         id (str): Resource UUID
         kind (str): Resource kind (correlationRule|dictionary|...)
         history_id (int): Number of version
         """
-        return self._make_request("GET", f"resources/{kind}/{id}/history/{history_id}")
+        return self._make_request(
+            "GET",
+            f"resources/{self._path(kind)}/{self._path(id)}/history/{self._path(history_id)}",
+        )
 
-    def revert(self, kind: str, id: str, history_id: int) -> Tuple[int, Union[List, str]]:
+    def revert(self, kind: str, id: str, history_id: int) -> APIResult:
         """Reverting resource history version with specified kind, ID and version number
         id (str): Resource UUID
         kind (str): Resource kind (correlationRule|dictionary|...)
         history_id (int): Number of version
         """
-        return self._make_request("POST", f"resources/{kind}/{id}/history/{history_id}")
-    
+        return self._make_request(
+            "POST",
+            f"resources/{self._path(kind)}/{self._path(id)}/history/{self._path(history_id)}",
+        )
+
     def link_rules_to_correlator(self, correlator_id: str, rules_ids: list[str]):
-        """Привязывает правила к коррелятору.
-
-        Args:
-            correlator_id (str): ID коррелятора
-            rules_ids (set[str]): Множество IDs корреляционных правил
-
-        Raises:
-            Exception: Если не удалось получить коррелятор
-            Exception: Если не удалось получить корреляционное правило
-        """
-        status, correlator = self._base.resources.get(
-            kind="correlator", id=correlator_id
-        )
-        if status != 200:
-            raise Exception("Could not get correlator. Status code:", correlator)
-
-        add_new_rules = False
-        rules_on_correlator = correlator["payload"].get("rules", [])
-        rules_on_correlator_ids = [rule["id"] for rule in rules_on_correlator]
-        rules_ids = set(rules_ids)
-        for rule_id in rules_ids:
-            if not rule_id in rules_on_correlator_ids:
-                status, rule = self._base.resources.get(
-                    kind="correlationRule", id=rule_id
-                )
-                if status != 200:
-                    raise Exception(
-                        "Could not get correlation rule. Status code:", status
-                    )
-
-                rules_on_correlator.append(rule["payload"])
-                if not add_new_rules:
-                    add_new_rules = True
-
-        if not add_new_rules:
-            return {
-                "response": f"Correlation rules are already linked to '{correlator_id}'"
-            }
-
-        correlator["payload"]["rules"] = rules_on_correlator
-        return self._base.resources.put(
-            kind="correlator", id=correlator_id, resource=correlator
-        )
+        """Attach missing rules once, preserving input order and existing rules."""
+        status, original = self.get("correlator", correlator_id)
+        correlator = deepcopy(original)
+        rules = correlator["payload"].setdefault("rules", [])
+        existing = {rule["id"] for rule in rules}
+        changed = False
+        for rule_id in dict.fromkeys(rules_ids):
+            if rule_id not in existing:
+                _, rule = self.get("correlationRule", rule_id)
+                rules.append(rule["payload"])
+                existing.add(rule_id)
+                changed = True
+        if not changed:
+            return status, original
+        return self.put("correlator", correlator_id, correlator)
 
     def unlink_rules_from_correlator(
-        self, correlator_id: str, rules_ids: list[str] = [], unlink_all: bool = False
+        self, correlator_id: str, rules_ids=None, unlink_all: bool = False
     ):
-        """Отвязывает правила от коррелятора.
-
-        Args:
-            correlator_id (str): ID коррелятора
-            rules_ids (set[str]): Множество IDs правил
-            unlink_all (bool, optional): Отвязать все правила
-
-        Raises:
-            Exception: Если не удалось получить коррелятор
-            Exception: Если корреляционное правило отсутствует на корреляторе
-        """
-        status, correlator = self._base.resources.get(
-            kind="correlator", id=correlator_id
+        """Detach rules in linear time; return the unchanged resource for a no-op."""
+        status, original = self.get("correlator", correlator_id)
+        rules = original["payload"].get("rules", [])
+        removed = set(rules_ids or ())
+        remaining = (
+            [] if unlink_all else [rule for rule in rules if rule["id"] not in removed]
         )
-        if status != 200:
-            raise Exception("Could not get correlator. Status code:", correlator)
-
-        if "rules" not in correlator["payload"]:
-            return {
-                "response": f"Correlator '{correlator_id}' does not have linked rules"
-            }
-
+        if remaining == rules:
+            return status, original
+        correlator = deepcopy(original)
         if unlink_all:
-            del correlator["payload"]["rules"]
-            return self._base.resources.put(
-                kind="correlator", id=correlator_id, resource=correlator
-            )
-
-        rules_on_correlator_ids = [
-            rule["id"] for rule in correlator["payload"]["rules"]
-        ]
-        rules_ids = set(rules_ids)
-        indexes_to_delete = []
-        for rule_id in rules_ids:
-            if rule_id not in rules_on_correlator_ids:
-                continue
-
-            rule_index = rules_on_correlator_ids.index(rule_id)
-            indexes_to_delete.append(rule_index)
-
-        if not indexes_to_delete:
-            return {
-                "response": f"Rules ids are not linked to correlator '{correlator_id}'"
-            }
-
-        for rule_index in sorted(indexes_to_delete, reverse=True):
-            del correlator["payload"]["rules"][rule_index]
-
-        return self._base.resources.put(
-            kind="correlator", id=correlator_id, resource=correlator
-        )
+            correlator["payload"].pop("rules", None)
+        else:
+            correlator["payload"]["rules"] = remaining
+        return self.put("correlator", correlator_id, correlator)

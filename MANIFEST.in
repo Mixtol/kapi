@@ -1,0 +1,4 @@
+include README.md API_REFERENCE.md EXTENTIONS.md CHANGELOG.md
+include requirements.txt requirements.dev.txt
+recursive-include scripts *.py
+recursive-include tests *.py *.json *.pem

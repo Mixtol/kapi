@@ -1,18 +1,17 @@
-from typing import List, Tuple, Union
-
-from kuma.rest._base import KumaRestAPIModule
+from kuma.rest._base import APIResult, KumaRestAPIModule
 
 
 class KumaRestAPIUsers(KumaRestAPIModule):
     """Methods for Users."""
-    def search(self, **kwargs) -> Tuple[int, Union[List, str]]:
+
+    def search(self, **kwargs) -> APIResult:
         """
-        Search tenants with filter
+        Search users with filters
         Args:
-            pattern (str): Search by name, login, and email case-insensitive regex
-            login (str): Case-insensetine name regex filter
-            email (str): Case-insensetine name regex filter
-            name (str): Case-insensetine name regex filter
+            pattern (str): Search by name, login, and email case-insensitive filter (regex in 3.4, substring in 4.x)
+            login (str): Case-insensitive filter (regex in 3.4, substring in 4.x)
+            email (str): Case-insensitive filter (regex in 3.4, substring in 4.x)
+            name (str): Case-insensitive filter (regex in 3.4, substring in 4.x)
             sort (str): For ASC <field> or add <-field> for DESC
             excludeDisabled (bool): Exclude disabled users
             role (List[str]): Role IDs filter, see examples.
@@ -21,17 +20,17 @@ class KumaRestAPIUsers(KumaRestAPIModule):
             size (int): Page size (250 by default)
         """
         params = {**kwargs}
-        return self._make_request("GET", "users", params=params)
+        return self._make_request("GET", "users/", params=params)
 
-    def get(self, id: str) -> Tuple[int, Union[List, str]]:
+    def get(self, id: str) -> APIResult:
         """
         Get specified user by UUID
         Args:
             id (str): User UUID
         """
-        return self._make_request("GET", f"users/id/{id}")
+        return self._make_request("GET", f"users/id/{self._path(id)}")
 
-    def whoami(self) -> Tuple[int, Union[List, str]]:
+    def whoami(self) -> APIResult:
         """
         Show info about token user
         """

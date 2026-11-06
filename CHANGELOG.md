@@ -1,48 +1,59 @@
-# Changelog
-## Version 2.1.3 - 09/06/25
-Core Updates:
+# История изменений
 
-1. Implemented data conversion between with 2 new methods:
-  - Active List to Dictionary data structures
-  - Dictionary to Active List data structures
+## Версия 4.2.0 — 2026/11/06
 
-2. Lazy Initialization
-Modules now initialize on first access for performance
+- Публичный API: поиск привязок правил, CSV-отчёт с русскими заголовками и группировкой на диске, пакетный перенос с резервированием конфликтов, синхронизация с эталоном и массовая привязка правил.
+- Добавлен поиск по содержимому ресурсов с ограничением запросов, продолжением поиска, условиями по JSON-путям и необязательным обходом ссылок.
+- Приватный API: массовое изменение алертинга и исправление удаления ресурса на KUMA 3/4; необязательный зашифрованный кеш сессии `kuma.private.session_cache` через `kuma-api[session-cache]`.
+- Контракты, ограничения и запуск проверок стендов описаны в [EXTENTIONS.md](EXTENTIONS.md).
+- Поддержка KUMA 3.4, 4.0 и 4.2 по Swagger; 4.1 использует контракт 4.0. Выбор версии в RestClient и PrivateClient, получение версии Core через get_version().
+- Добавлен импорт kuma_api с теми же клиентами и исключениями, что в kuma. Примеры всех 62 операций — в API_REFERENCE.md.
+- Читаемые ошибки API с подстановкой details/params и сохранением исходного ответа.
+- Передача собственного logger без изменения настроек логирования приложения.
+- Настройка центров сертификации и таймаутов, включая экспорт; повторное использование соединений.
+- Загрузка и скачивание файлов частями, включая резервные копии. Существующий файл сохраняется при ошибке скачивания.
+- Расширен PrivateClient с сохранением имён и аргументов. Исправлены сессии, папки Shared, пагинация и экспорт KUMA 4.x. Аргументы, результаты и ограничения описаны в строках документации методов.
+- Приватный клиент перенесён в kuma/private, общие компоненты — в kuma/_common. Прежние импорты клиентов сохранены.
+- Исправлены фильтры запросов, обработка CSV, пагинация алертов и передача clear=False при импорте.
+- Изменения совместимости: файловые методы по умолчанию возвращают DownloadStream; для загрузки в память нужен stream=False. TLS проверяется по умолчанию. Публичные методы работы с архивами требуют пароль, временные метки — часовой пояс.
+- Обновлены уязвимые зависимости и инструменты сборки; минимальная версия Python — 3.10.
+- Проверки: 966 локальных тестов; чтение и передача файлов на стендах KUMA 3.4 и 4.2. Для 4.0 и 4.1 выполнены локальные проверки.
 
-3. Renamed functions and typos:
-  - fixed many typos like `dictionai` -> `dictionary`
-  - All `_import` functions to `import_data`
-  - activeLists function `list` now named `lists`
+## Версия 3.0.0 — 01/09/25
 
-4. Added `@properties` for IDE support
+- Добавлены методы работы с ресурсами (`resources`).
+- Добавлены методы работы с настройками (`settings`).
+- Исправлен `system/backups`: можно задать собственный таймаут, метод создания резервной копии использует GET вместо POST.
 
-## Version 2.1.4 - 10/06/25
-- Removed init method for classes for KUMA components as initialization is being done in KumaRestAPIModule
-- Changed imports from relative to absolute because it is considered best-practice
-- Removed unused imports (from typing module)
-- Translated annotations to ENG
-- Changed logging.py to _logging.py because logging is reserved for module name
-- Added datatypes annotations
-- Added specific versions for modules in requirements.dev.txt
-- Fixed to_dict unic validation
-- Updated README.md
-- Added TODO
+## Версия 2.1.6 — 18/06/25
 
-## Version 2.1.5 - 17/06/25
+- Исправлена обработка пользовательского ключа в `.active_lists.to_dictionary`.
 
-Update for `.active_lists.to_dictionary` function:
-- Fixed headers selection
-- Optimized set for values
-- Added *clear* dictionary option
+## Версия 2.1.5 — 17/06/25
 
-## Version 2.1.6 - 18/06/25
+Изменения функции `.active_lists.to_dictionary`:
 
-Update for `.active_lists.to_dictionary` function:
-- Fixed custom key
+- Исправлен выбор заголовков.
+- Оптимизировано множество значений.
+- Добавлен параметр `clear` для очистки словаря.
 
+## Версия 2.1.4 — 10/06/25
 
-## Version 3.0.0 - 01/09/25
+- Удалены отдельные методы инициализации классов компонентов KUMA: инициализация выполняется в KumaRestAPIModule.
+- Относительные импорты заменены абсолютными.
+- Удалены неиспользуемые импорты из модуля typing.
+- Описания переведены на английский язык.
+- Файл logging.py переименован в _logging.py, чтобы избежать совпадения с именем стандартного модуля.
+- Добавлены аннотации типов данных.
+- Зафиксированы версии зависимостей в requirements.dev.txt.
+- Исправлена проверка уникальности в to_dict.
+- Обновлён README.md.
+- Добавлен список задач TODO.
 
-- Added new methods for *resources*
-- Added new methods for *settings*
-- Fix for *system/backups*: Now you can add you timeout value and changed POST -> GET for create bak method.
+## Версия 2.1.3 — 09/06/25
+
+- Добавлены два преобразования данных: из активного списка в словарь и из словаря в активный список.
+- Модули инициализируются при первом обращении для повышения производительности.
+- Исправлены опечатки, включая `dictionai` → `dictionary`.
+- Все функции `_import` переименованы в `import_data`, функция `activeLists.list` — в `lists`.
+- Добавлены свойства `@property` для поддержки сред разработки.

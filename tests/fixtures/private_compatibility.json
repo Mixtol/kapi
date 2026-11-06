@@ -1,0 +1,444 @@
+{
+  "private.py": {
+    "__init__": [
+      "url",
+      "username",
+      "password",
+      "session_data",
+      "version",
+      "logger"
+    ],
+    "create_session": [
+      "url",
+      "username",
+      "password",
+      "existing_session_data",
+      "cert"
+    ],
+    "close": [],
+    "load_session": [
+      "session_data"
+    ],
+    "initialize_session": [],
+    "login": [
+      "username",
+      "password",
+      "timeout"
+    ],
+    "get_session_data": [],
+    "logout": [],
+    "whoami": [],
+    "private_select_tenant": [
+      "tenant_ids",
+      "select_all"
+    ],
+    "get_all_tenants": [],
+    "get_all_tenant_content": [
+      "tenant_id",
+      "kind"
+    ],
+    "get_tenant_id_by_name": [
+      "name"
+    ],
+    "get_correlation_rule_id_by_name": [
+      "tenant_id"
+    ],
+    "get_all_correlator": [
+      "tenant_id"
+    ],
+    "get_tenant_services": [
+      "tenant_id",
+      "kind"
+    ],
+    "get_resource": [
+      "id",
+      "kind"
+    ],
+    "get_resources": [
+      "kind",
+      "tenant_id"
+    ],
+    "get_correlation_rule_by_id": [
+      "rule_id"
+    ],
+    "get_correlation_rule": [
+      "rule_id"
+    ],
+    "get_content_by_folder_id": [
+      "folder_id",
+      "sub_kind"
+    ],
+    "get_destination_by_id": [
+      "content_id"
+    ],
+    "get_dependences": [
+      "resource_id"
+    ],
+    "get_correlator_by_id": [
+      "content_id"
+    ],
+    "get_all_services": [
+      "kind"
+    ],
+    "get_service_id_by_resource_id": [
+      "resource_id"
+    ],
+    "get_services_ids_by_resource_id": [
+      "resource_id"
+    ],
+    "get_content_by_id": [
+      "content_id",
+      "sub_kind"
+    ],
+    "get_all_folders_by_kind": [
+      "sub_kind",
+      "include_share",
+      "only_shared",
+      "include_root"
+    ],
+    "get_all_folders": [
+      "include_share",
+      "only_shared"
+    ],
+    "get_all_folders_content": [
+      "sub_kind"
+    ],
+    "get_folder_content": [
+      "folder_id",
+      "sub_kind"
+    ],
+    "get_folder_id_by_name": [
+      "folder_name",
+      "sub_kind",
+      "tenant_id",
+      "parent_id"
+    ],
+    "reload_service": [
+      "service_id"
+    ],
+    "create_folder": [
+      "name",
+      "tenant_id",
+      "parent_id",
+      "sub_kind"
+    ],
+    "update_resource": [
+      "resource",
+      "new_name"
+    ],
+    "create_resource": [
+      "resource",
+      "tenant_id",
+      "folder_id",
+      "new_name"
+    ],
+    "update_or_create_resource": [
+      "resource",
+      "tenant_id",
+      "folder_id",
+      "new_name"
+    ],
+    "create_corrRule": [
+      "rule",
+      "folder_id",
+      "tenant_id",
+      "new_name"
+    ],
+    "bind_rules": [
+      "rules_ids",
+      "correlator_ids",
+      "tenant_id"
+    ],
+    "link_rules_to_correlator": [
+      "correlator_id",
+      "rules_ids"
+    ],
+    "unbind_rule": [
+      "rule_id",
+      "correlators_ids",
+      "tenant_id"
+    ],
+    "unlink_rules_from_correlator": [
+      "correlator_id",
+      "rules_ids"
+    ],
+    "move_content": [
+      "folderID",
+      "resourceIDs"
+    ],
+    "export_geo": [],
+    "export_content": [
+      "ids",
+      "tenant_id",
+      "password",
+      "file_path"
+    ],
+    "import_content": [
+      "file_path",
+      "tenant_id",
+      "password",
+      "action"
+    ],
+    "delete_resource": [
+      "resource_id",
+      "kind"
+    ],
+    "get_active_list_scan": [
+      "correlator_service_id",
+      "active_list_id"
+    ],
+    "get_active_list_content": [
+      "correlator_service_id",
+      "active_list_id"
+    ],
+    "delete_activeList_record": [
+      "correlator_service_id",
+      "active_list_id",
+      "device_key"
+    ],
+    "post_activeList_record": [
+      "correlator_service_id",
+      "activeList_id",
+      "device_key",
+      "records"
+    ],
+    "reload_services": [
+      "resource_id"
+    ]
+  },
+  "extended_client": {
+    "__init__": [
+      "url",
+      "username",
+      "password",
+      "session_data",
+      "version"
+    ],
+    "create_session": [
+      "url",
+      "username",
+      "password",
+      "existing_session_data",
+      "cert"
+    ],
+    "load_session": [
+      "session_data"
+    ],
+    "initialize_session": [],
+    "login": [
+      "username",
+      "password",
+      "timeout"
+    ],
+    "get_session_data": [],
+    "logout": [],
+    "whoami": [],
+    "private_select_tenant": [
+      "tenant_ids",
+      "select_all"
+    ],
+    "get_all_tenants": [],
+    "get_all_tenant_content": [
+      "tenant_id",
+      "kind"
+    ],
+    "get_tenant_id_by_name": [
+      "name"
+    ],
+    "get_correlation_rule_id_by_name": [
+      "tenant_id"
+    ],
+    "get_all_correlator": [
+      "tenant_id"
+    ],
+    "get_tenant_services": [
+      "tenant_id",
+      "kind"
+    ],
+    "get_resource": [
+      "id",
+      "kind"
+    ],
+    "get_resources": [
+      "kind",
+      "tenant_id"
+    ],
+    "get_correlation_rule_by_id": [
+      "rule_id"
+    ],
+    "get_correlation_rule": [
+      "rule_id"
+    ],
+    "get_content_by_folder_id": [
+      "folder_id",
+      "sub_kind"
+    ],
+    "get_destination_by_id": [
+      "content_id"
+    ],
+    "get_dependences": [
+      "resource_id"
+    ],
+    "get_correlator_by_id": [
+      "content_id"
+    ],
+    "get_all_services": [
+      "kind"
+    ],
+    "get_service_id_by_resouce_id": [
+      "resource_id"
+    ],
+    "get_services_id_by_resouce_id": [
+      "resource_id"
+    ],
+    "get_content_by_id": [
+      "content_id",
+      "sub_kind"
+    ],
+    "get_all_folders_by_kind": [
+      "sub_kind",
+      "include_share",
+      "only_shared",
+      "include_root"
+    ],
+    "get_all_folders": [
+      "include_share",
+      "only_shared"
+    ],
+    "get_all_folders_content": [
+      "sub_kind"
+    ],
+    "get_folder_content": [
+      "folder_id",
+      "sub_kind"
+    ],
+    "get_folder_id_by_name": [
+      "folder_name",
+      "sub_kind",
+      "tenant_id",
+      "parent_id"
+    ],
+    "reload_service": [
+      "service_id"
+    ],
+    "create_folder": [
+      "name",
+      "tenant_id",
+      "parent_id",
+      "sub_kind"
+    ],
+    "update_resource": [
+      "resource",
+      "new_name"
+    ],
+    "create_resource": [
+      "resource",
+      "tenant_id",
+      "folder_id",
+      "new_name"
+    ],
+    "update_or_create_resource": [
+      "resource",
+      "tenant_id",
+      "folder_id",
+      "new_name"
+    ],
+    "create_corrRule": [
+      "rule",
+      "folder_id",
+      "tenant_id",
+      "new_name"
+    ],
+    "link_rules": [
+      "rules_IDs",
+      "correlator_IDs"
+    ],
+    "link_rule_to_correlator": [
+      "correlator_id",
+      "rule_id"
+    ],
+    "link_rules_to_correlator": [
+      "correlator_id",
+      "rules_ids"
+    ],
+    "unbind_rule": [
+      "rule_id",
+      "correlators_ids",
+      "tenant_id"
+    ],
+    "unlink_rules_from_correlator": [
+      "correlator_id",
+      "rules_ids"
+    ],
+    "move_content": [
+      "folderID",
+      "resourceIDs"
+    ],
+    "export_geo": [],
+    "export_content": [
+      "ids",
+      "tenant_id",
+      "password",
+      "file_path"
+    ],
+    "import_content": [
+      "file_path",
+      "tenant_id",
+      "password",
+      "action"
+    ],
+    "delete_resource": [
+      "resource_id",
+      "kind"
+    ],
+    "get_active_list_scan": [
+      "correlator_service_id",
+      "active_list_id"
+    ],
+    "get_active_list_content": [
+      "correlator_service_id",
+      "active_list_id"
+    ],
+    "delete_activeList_record": [
+      "correlator_service_id",
+      "active_list_id",
+      "device_key"
+    ],
+    "post_activeList_record": [
+      "correlator_service_id",
+      "activeList_id",
+      "device_key",
+      "records"
+    ],
+    "reload_services": [
+      "resource_id"
+    ],
+    "get_rule_by_id": [
+      "rule_id",
+      "rule_type"
+    ],
+    "get_tenant_shared": [],
+    "get_settings": [
+      "kind",
+      "columns"
+    ],
+    "get_settings_by_id": [
+      "id_",
+      "column",
+      "order"
+    ],
+    "update_settings_by_id": [
+      "id_",
+      "correlation_rules",
+      "action",
+      "payload",
+      "rule_name"
+    ],
+    "get_resource_id_by_name": [
+      "name",
+      "tenant_id",
+      "shared",
+      "shared_prefixes"
+    ]
+  }
+}

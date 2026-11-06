@@ -1,20 +1,33 @@
 import csv
 import os
+import tempfile
 from io import StringIO
-from typing import Dict, Tuple, Union
+from pathlib import Path
+from typing import Dict
 
-from kuma.rest._base import APIError, KumaRestAPIModule
+from kuma._common.transfers import CHUNK_SIZE
+from kuma.rest._base import APIResult, KumaRestAPIModule
 
 
 class KumaRestAPIDictionaries(KumaRestAPIModule):
     """Methods for Dictionaries and Tables."""
-    def content(self, dictionary_id: str) -> Tuple[int, str]:
-        """
-        Get dictionary content.
-        """
-        return self._make_request(
-            "GET",
+
+    def content(
+        self,
+        dictionary_id: str,
+        filepath=None,
+        *,
+        stream=True,
+        chunk_size=CHUNK_SIZE,
+        timeout=None,
+    ):
+        """Download UTF-8 CSV. Use stream=False to return a string in memory."""
+        return self._download(
             "dictionaries",
+            filepath,
+            stream=stream,
+            chunk_size=chunk_size,
+            timeout=timeout,
             params={"dictionaryID": dictionary_id},
             headers={"Accept": "text/plain; charset=utf-8"},
         )
@@ -26,7 +39,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
         data: Dict,
         overwrite_exist: int = 0,
         need_reload: int = 0,
-    ) -> Tuple[int, Dict]:
+    ) -> APIResult:
         """
         Add row to dictionary.
         Args:
@@ -49,7 +62,7 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
 
     def delete_row(
         self, dictionary_id: str, row_key: str, need_reload: int = 0
-    ) -> Tuple[int, Dict]:
+    ) -> APIResult:
         """
         Delete row from dictionary by key.
         Args:
@@ -62,58 +75,99 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
             "rowKey": row_key,
             "needReload": need_reload,
         }
-        return self._make_request("POST", "dictionaries/add_row", params=params)
+        return self._make_request("POST", "dictionaries/delete_row", params=params)
 
     def update(
-        self, dictionary_id: str, csv: str, need_reload: int = 0
-    ) -> Tuple[int, Dict]:
+        self,
+        dictionary_id: str,
+        csv=None,
+        need_reload: int = 0,
+        *,
+        filepath=None,
+        timeout=None,
+        chunk_size=CHUNK_SIZE,
+    ):
+        """Stream CSV text, bytes, a binary stream, or a file as multipart data.
+
+        Existing string paths remain supported; filepath is unambiguous for files.
         """
-        Rewrite dictionary from CSV file or data.
-        Args:
-            dictionary_id (str): Dictionary UUID
-            need_reload (int): 0|1 Reload services thats using resource
-            csv (str): Dictionary CSV Text OR Path to existing CSV File, see examples
-        """
-        params = {"dictionaryID": dictionary_id, "needReload": need_reload}
-        try:
-            if os.path.isfile(csv):
-                with open(csv, "rb") as file:
-                    files = {"file": (os.path.basename(csv), file)}
-            else:
-                files = {"file": ("data.csv", csv)}
-            return self._make_request(
-                "POST", "dictionaries/update", params=params, files=files
-            )
-        except IOError as exception:
-            raise APIError(f"File operation failed: {exception}") from exception
+        if isinstance(csv, os.PathLike) or (
+            isinstance(csv, str) and os.path.isfile(csv)
+        ):
+            if filepath is not None:
+                raise ValueError("Specify either filepath or csv, not both")
+            filepath, csv = csv, None
+        return self._upload(
+            "dictionaries/update",
+            csv,
+            filepath=filepath,
+            multipart=True,
+            filename=Path(filepath).name if filepath is not None else "data.csv",
+            content_type="text/csv; charset=utf-8",
+            timeout=timeout,
+            chunk_size=chunk_size,
+            params={"dictionaryID": dictionary_id, "needReload": need_reload},
+        )
 
-    # Extended
+    @staticmethod
+    def _reader(source):
+        reader = csv.DictReader(source, strict=True)
+        headers = reader.fieldnames
+        if headers and (
+            any(not h for h in headers) or len(set(headers)) != len(headers)
+        ):
+            raise ValueError("CSV column names must be non-empty and unique")
+        return reader
 
-    def csv_to_json(self, csv_data: str) -> Dict:
-        """
-        Transform CSV in JSON list.
-        Args:
-            csv_data: CSV string rows from dictionary content.
-        """
-        try:
-            lines = [line.strip() for line in csv_data.split("\n") if line.strip()]
-            if not lines:
-                return []
-            headers = [header.strip() for header in lines[0].split(",")]
-            result = []
-            for line in lines[1:]:
-                values = [value.strip() for value in line.split(",")]
+    @staticmethod
+    def _rows(reader):
+        for row in reader:
+            if None in row or any(value is None for value in row.values()):
+                raise ValueError(
+                    f"CSV row {reader.line_num} has an incorrect number of columns"
+                )
+            yield row
 
-                # Обрезаем или дополняем значения, если не strict
-                row_values = values[: len(headers)]
-                row_dict = dict(zip(headers, row_values))
-                result.append(row_dict)
+    def csv_to_json(self, csv_data: str) -> list:
+        """Parse CSV with quoted commas, embedded newlines, and UTF-8 BOM support."""
+        return list(
+            self._rows(self._reader(StringIO(csv_data.lstrip("\ufeff"), newline="")))
+        )
 
-            return result
+    def _write_with_key(self, source, output, new_key_column):
+        reader = self._reader(source)
+        headers = reader.fieldnames or []
+        if new_key_column not in headers:
+            raise ValueError(f"CSV key column does not exist: {new_key_column}")
 
-        except Exception as e:
-            self.logger.exception(f"Unknown exeption: {e}")
-            return None
+        # Swap names instead of overwriting an existing 'value' column.
+        def rename(name):
+            if name == new_key_column:
+                return "key"
+            if name == "key":
+                return new_key_column
+            return name
+
+        writer = csv.DictWriter(
+            output, fieldnames=[rename(h) for h in headers], lineterminator="\n"
+        )
+        writer.writeheader()
+        seen = set()
+        for row in self._rows(reader):
+            key = row[new_key_column]
+            if not key or key in seen:
+                raise ValueError(
+                    f"CSV key must be non-empty and unique (row {reader.line_num})"
+                )
+            seen.add(key)
+            writer.writerow({rename(name): value for name, value in row.items()})
+
+    def _swap_key_column(self, csv_data, new_key_column):
+        output = StringIO(newline="")
+        self._write_with_key(
+            StringIO(csv_data.lstrip("\ufeff"), newline=""), output, new_key_column
+        )
+        return output.getvalue()
 
     def to_active_list(
         self,
@@ -122,63 +176,22 @@ class KumaRestAPIDictionaries(KumaRestAPIModule):
         active_list_id: str,
         dictionary_key: str = "key",
         clear: bool = False,
-    ) -> Tuple[int, Union[Dict, str]]:
-        """
-        Converts dictionary data to an existing active list,
-            with the ability to change the key column.
-        dictionary_id* (str): Destination Dict. resource id
-        correlator_id* (str): Service ID
-        active_list_id* (str): Source AL resource id
-        dictionary_key (str): Key column name of Dictionary which will have values from key column of Active List.
-        clear (bool, optional): Is need to delete existing values. Defaults to False.
-        """
-        dictionary_data = self._swap_key_column(
-            self.content(dictionary_id)[1], dictionary_key
-        )
-
-        return self._base.active_lists.import_data(
-            correlator_id,
-            "csv",
-            activeListID=active_list_id,
-            keyField=dictionary_key,
-            data=dictionary_data,
-            clear=clear,
-        )
-
-        pass
-
-    def _swap_key_column(self, csv_data, new_key_column):
-        """Function for replacing key field in CSV
-        with uniqueness validation and renaming
-
-        Args:
-            csv_data (str): Data
-            new_key_column (str): Which CSV column should be taken
-        """
-        reader = csv.DictReader(StringIO(csv_data.strip()))
-        rows = list(reader)
-        fieldnames = reader.fieldnames
-        if new_key_column == "key" or new_key_column not in fieldnames:
-            return csv_data
-        new_fieldnames = ["key", "value"] + [
-            f for f in fieldnames if f not in ["key", new_key_column]
-        ]
-        new_rows = []
-        for row in rows:
-            if not row.get(new_key_column):
-                continue
-            new_row = {
-                "key": row[new_key_column],  # Новая колонка -> key
-                "value": row.get("key", ""),  # Старый key -> value
-            }
-            # Добавляем остальные поля (кроме key и new_key_column)
-            for field in row:
-                if field not in ["key", new_key_column, "", None]:
-                    new_row[field] = row[field]
-            new_rows.append(new_row)
-        output = StringIO()
-        writer = csv.DictWriter(output, fieldnames=new_fieldnames)
-        writer.writeheader()
-        writer.writerows(new_rows)
-
-        return output.getvalue()
+    ):
+        """Convert CSV on disk and upload it after validating every key."""
+        with tempfile.TemporaryDirectory(prefix="kapi-") as directory:
+            source = Path(directory) / "dictionary.csv"
+            target = Path(directory) / "active-list.csv"
+            self.content(dictionary_id, filepath=source)
+            with (
+                source.open(encoding="utf-8-sig", newline="") as inp,
+                target.open("w", encoding="utf-8", newline="") as out,
+            ):
+                self._write_with_key(inp, out, dictionary_key)
+            return self._base.active_lists.import_data(
+                correlator_id,
+                "csv",
+                filepath=target,
+                activeListID=active_list_id,
+                keyField="key",
+                clear=clear,
+            )

@@ -1,13 +1,19 @@
+import csv
 import json
-from typing import Dict, Tuple, Union
+import tempfile
+from io import StringIO
+from pathlib import Path
+from typing import Optional
 
-from kuma.rest._base import KumaRestAPIModule
+from kuma._common.transfers import CHUNK_SIZE
+from kuma.errors import APIError
+from kuma.rest._base import APIResult, KumaRestAPIModule, Timeout
 
 
 class KumaRestAPIActiveLists(KumaRestAPIModule):
     """Methods for Active Lists."""
 
-    def lists(self, correlator_id: str) -> Tuple[int, Union[list, str]]:
+    def lists(self, correlator_id: str) -> APIResult:
         """
         Gets current active lists on correlator.
         Args:
@@ -18,68 +24,128 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         )
 
     def import_data(
-        self, correlator_id: str, format: str, data: str, **kwargs
-    ) -> Tuple[int, Union[str, list]]:
-        """
-            Method for importing JSON(with out commas), CSV, TSV to Correaltor AL
-        Args:
-            correlator_id* (str): Service ID
-            format* (str): format of represented data (csv|tsv|internal)
-            activeListID (str): AL UUID (must be ID or Name)
-            activeListName (str): AL Name
-            keyField* (str): Name of key (uniq) column for csv and tsv
-            clear (bool, optional): Is need to delete existing values. Defaults to False.
-            data* (str): AL content (see examples)
-        """
-        params = {"correlatorID": correlator_id, "format": format, **kwargs}
-        return self._make_request(
-            "POST", "activeLists/import", params=params, data=data
+        self,
+        correlator_id: str,
+        format: str,
+        data=None,
+        *,
+        filepath=None,
+        timeout=None,
+        chunk_size=CHUNK_SIZE,
+        **kwargs,
+    ):
+        """Stream CSV, TSV, or internal NDJSON; select an active list by ID or name."""
+        if format not in ("csv", "tsv", "internal"):
+            raise ValueError("format must be csv, tsv, or internal")
+        if bool(kwargs.get("activeListID")) == bool(kwargs.get("activeListName")):
+            raise ValueError("Specify exactly one activeListID or activeListName")
+        if format in ("csv", "tsv") and not kwargs.get("keyField"):
+            raise ValueError("keyField is required for CSV and TSV")
+        return self._upload(
+            "activeLists/import",
+            data,
+            filepath=filepath,
+            params={"correlatorID": correlator_id, "format": format, **kwargs},
+            content_type=format,
+            timeout=timeout,
+            chunk_size=chunk_size,
         )
 
-    def download(self, file_id: str) -> Tuple[int, bytes]:
-        """
-        Download AL by generated ID.
-        Args:
-            file_id (str): File UUID via /download operation
-        """
-        return self._make_request(
-            "GET", f"download/{file_id}", headers={"Accept": "application/octet-stream"}
+    def download(
+        self,
+        file_id: str,
+        filepath=None,
+        *,
+        stream=True,
+        timeout=None,
+        chunk_size=CHUNK_SIZE,
+    ):
+        """Download an exported active list to a file or a managed chunk iterator."""
+        return self._download(
+            f"download/{self._path(file_id)}",
+            filepath,
+            stream=stream,
+            timeout=timeout,
+            chunk_size=chunk_size,
         )
 
     def export(
-        self, correlator_id: str, active_list_id: str
-    ) -> Tuple[int, Union[bytes, str]]:
+        self,
+        correlator_id: str,
+        active_list_id: str,
+        *,
+        timeout: Optional[Timeout] = None,
+    ) -> APIResult:
         """
-        Generatind AL file ID for download file method.
+        Generating AL file ID for download file method.
         Args:
             correlator_id* (str): Service ID
-            active_list_id* (str): Exporting AL resource id
+            active_list_id* (str): Active list resource ID
+            timeout: Seconds or (connect, read) seconds; None uses the client timeout
         """
         return self._make_request(
             "GET",
-            f"services/{correlator_id}/activeLists/export/{active_list_id}",
-            headers={"Accept": "application/octet-stream"},
+            f"services/{self._path(correlator_id)}/activeLists/export/{self._path(active_list_id)}",
+            headers={"Accept": "application/json"},
+            timeout=timeout,
         )
 
-    def scan(
-        self, correlator_id: str, active_list_id: str, **kwargs
-    ) -> Tuple[int, Union[Dict, str]]:
+    def scan(self, correlator_id: str, active_list_id: str, **kwargs) -> APIResult:
         """
-        Scan active list content withouts keys (For some extraordinary shit).
+        Scan active list records with timestamp or substring filters.
         Args:
             correlator_id* (str): Service ID
-            active_list_id* (str): Exporting AL resource id
+            active_list_id* (str): Active list resource ID
             from (str): Epoch in nanoseconds
             exclude (str): Epoch in nanoseconds
             pattern (str): Key search string filter
-            limit (str): Yes str but actualy its limit number
+            limit (str): Maximum number of returned records
             sort (str): For ASC <columnname> or add '-columnname' for DESC
         """
         return self._make_request(
-            "GET", f"services/{correlator_id}/activeLists/scan/{active_list_id}"
+            "GET",
+            f"services/{self._path(correlator_id)}/activeLists/scan/{self._path(active_list_id)}",
+            params=kwargs,
         )
 
-    # Extended function
+    @staticmethod
+    def _cell(value):
+        if value is None:
+            return ""
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=False)
+        return str(value)
+
+    def _write_records(self, writer, al_key, records, headers, seen):
+        count = 0
+        for row in records:
+            record = row.get("record")
+            if not isinstance(record, dict):
+                raise ValueError("Active list record must be an object")
+            source = row if al_key == "key" else record
+            if al_key not in source:
+                raise ValueError(f"Active list key column is missing: {al_key}")
+            key = self._cell(source[al_key])
+            if not key:
+                raise ValueError("Active list key cannot be empty")
+            if key not in seen:
+                seen.add(key)
+                writer.writerow(
+                    [key] + [self._cell(record.get(h)) for h in headers[1:]]
+                )
+            count += 1
+        return count
+
+    def _get_data_with_column(self, al_key, al_content, dict_headers, dict_unique_keys):
+        output = StringIO(newline="")
+        self._write_records(
+            csv.writer(output, lineterminator="\n"),
+            al_key,
+            al_content,
+            dict_headers,
+            dict_unique_keys,
+        )
+        return output.getvalue()
 
     def to_dictionary(
         self,
@@ -89,73 +155,46 @@ class KumaRestAPIActiveLists(KumaRestAPIModule):
         active_list_key: str = "key",
         need_reload: int = 0,
         clear: bool = False,
-    ) -> Tuple[int, Union[Dict, str]]:
-        """
-        Converts active sheet data into an existing dictionary,
-        with the ability to change the key column.
-        correlator_id* (str): Service ID
-        active_list_id* (str): Source AL resource id
-        dictionary_id* (str): Destination Dict. resource id
-        active_list_key: Column name of Active List which will be key column in Dictionary.
-        need_reload (1|0): Will restart all dependeses resources
-        clear (bool): Will clear filled dictionary
-        """
-        if not correlator_id:
-            raise ValueError("Correlator id must be specified")
-        if not active_list_id:
-            raise ValueError("Active List id must be specified")
-        if not dictionary_id:
-            raise ValueError("Dictionary id must be specified")
-
-        _, download_id = self.export(
-            correlator_id=correlator_id, active_list_id=active_list_id
-        )
-        _, al_content_json = self.download(download_id.get("id", {}))
-        active_list_content = [
-            json.loads(line) for line in al_content_json.splitlines()
-        ]
-        if not al_content_json:
-            return 0, "Active List is empty"
-
-        elif active_list_key != "key" and active_list_key not in active_list_content[
-            0
-        ].get("record"):
-            raise ValueError(
-                "Active List column name for key must be "
-                "equal 'key' or exist in Active List record"
+    ):
+        """Convert NDJSON and CSV on disk, preserving quoting and existing keys."""
+        if not all((correlator_id, active_list_id, dictionary_id)):
+            raise ValueError("Correlator, active list, and dictionary IDs are required")
+        _, exported = self.export(correlator_id, active_list_id)
+        if not isinstance(exported, dict) or not exported.get("id"):
+            raise APIError(
+                "Active list export did not return a file ID", response_data=exported
             )
-
-        _, dict_data = self._base.dictionaries.content(dictionary_id)
-        dict_headers = dict_data.splitlines()[0].split(",")
-
-        if not clear:
-            dict_unique_keys = set(
-                row.split(",")[0] for row in dict_data.splitlines()[1:]
+        with tempfile.TemporaryDirectory(prefix="kapi-") as directory:
+            active = Path(directory) / "active-list.ndjson"
+            original = Path(directory) / "dictionary.csv"
+            target = Path(directory) / "result.csv"
+            self.download(exported["id"], filepath=active)
+            self._base.dictionaries.content(dictionary_id, filepath=original)
+            seen = set()
+            with (
+                original.open(encoding="utf-8-sig", newline="") as inp,
+                target.open("w", encoding="utf-8", newline="") as out,
+            ):
+                reader = self._base.dictionaries._reader(inp)
+                headers = reader.fieldnames
+                if not headers:
+                    raise ValueError("Dictionary CSV must have a header")
+                writer = csv.writer(out, lineterminator="\n")
+                writer.writerow(headers)
+                if not clear:
+                    for row in self._base.dictionaries._rows(reader):
+                        seen.add(row[headers[0]])
+                        writer.writerow([row[h] for h in headers])
+                with active.open(encoding="utf-8-sig") as records:
+                    count = self._write_records(
+                        writer,
+                        active_list_key,
+                        (json.loads(line) for line in records if line.strip()),
+                        headers,
+                        seen,
+                    )
+            if not count and not clear:
+                return 200, {"message": "Active list is empty", "updated": False}
+            return self._base.dictionaries.update(
+                dictionary_id, filepath=target, need_reload=need_reload
             )
-        else:
-            dict_unique_keys = set()
-            dict_data = ",".join(dict_headers) + "\n"
-
-        dict_data += self._get_data_with_column(
-            active_list_key, active_list_content, dict_headers, dict_unique_keys
-        )
-
-        return self._base.dictionaries.update(
-            dictionary_id=dictionary_id,
-            csv=dict_data,
-            need_reload=need_reload,
-        )
-
-    def _get_data_with_column(self, al_key, al_content, dict_headers, dict_unique_keys):
-        dict_data = ""
-        for row in al_content:
-            al_record = row["record"]
-            dict_key = row["key"] if al_key == "key" else al_record[al_key]
-            if dict_key not in dict_unique_keys:
-                dict_unique_keys.add(dict_key)
-                dict_line = [dict_key]
-                for header in dict_headers[1:]:
-                    value = al_record.get(header, "")
-                    dict_line.append(value)
-                dict_data += ",".join(dict_line) + "\n"
-        return dict_data

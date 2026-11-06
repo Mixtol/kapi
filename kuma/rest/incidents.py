@@ -1,30 +1,31 @@
-from typing import Dict, List, Tuple, Union
+from typing import List
 
-from kuma.rest._base import KumaRestAPIModule
+from kuma.rest._base import APIResult, KumaRestAPIModule
 
 
 class KumaRestAPIIncidents(KumaRestAPIModule):
     """Methods for Incidents."""
-    def search(self, **kwargs) -> Tuple[int, Union[bytes, str]]:
+
+    def search(self, **kwargs) -> APIResult:
         """
         Searching alerts from KUMA
         Args:
             page (int): Listing page of result (250 alerts per page)
             id (List[str]): Search for specified id
             tenantID (str): Tenant filter
-            name (str): Case-insensetine name regex filter
+            name (str): Case-insensitive filter (regex in 3.4, substring in 4.x)
             from (str): RFC3339 Lower limit
             to (str): RFC3339 Upper limit
-            timestampField (str): lastSeen|firtsSeen for from-to order
+            timestampField (str): lastSeen|firstSeen for from-to order
             status (str): open|assigned|closed
-            search (str): case-insensitive regex search in most used fields
+            search (str): case-insensitive filter (regex in 3.4, substring in 4.x) search in most used fields
         """
         params = {
             **kwargs,
         }
         return self._make_request("GET", "incidents", params=params)
 
-    def assign(self, incidents_ids: list, user_id: str) -> Tuple[int, Union[bytes, str]]:
+    def assign(self, incidents_ids: list, user_id: str) -> APIResult:
         """Alert assign method
         Args:
             incidents_ids (list): Incidents INC names list
@@ -33,17 +34,25 @@ class KumaRestAPIIncidents(KumaRestAPIModule):
         json = {"incidentIDs": incidents_ids, "assignee": user_id}
         return self._make_request("POST", "incidents/assign", json=json)
 
-    def close(self, incidents_ids: str, resolution: str) -> Tuple[int, Dict]:
+    def close(self, incidents_ids: List[str], resolution: int) -> APIResult:
         """
         Close alerts with reason.
         Args:
             incidents_ids (list): Incidents INC names list
             resolution (int): 1 Confirmed|0 Not confirmed
         """
+        if isinstance(incidents_ids, str):
+            incidents_ids = [incidents_ids]
+        if (
+            isinstance(resolution, bool)
+            or not isinstance(resolution, int)
+            or resolution not in (0, 1)
+        ):
+            raise ValueError("resolution must be 0 (not confirmed) or 1 (confirmed)")
         json = {"incidentIDs": incidents_ids, "resolution": resolution}
         return self._make_request("POST", "incidents/close", json=json)
 
-    def comment(self, incident_id: str, comment: str) -> Tuple[int, Union[Dict, str]]:
+    def comment(self, incident_id: str, comment: str) -> APIResult:
         """
         Create a comment in alert.
         Args:
@@ -53,9 +62,7 @@ class KumaRestAPIIncidents(KumaRestAPIModule):
         json = {"id": incident_id, "comment": comment}
         return self._make_request("POST", "incidents/comment", json=json)
 
-    def create(
-        self, incident: dict, calc_priority: bool = False
-    ) -> Tuple[int, Union[Dict, str]]:
+    def create(self, incident: dict, calc_priority: bool = False) -> APIResult:
         """
         Creating new incident from JSON data
         Args:
@@ -67,16 +74,14 @@ class KumaRestAPIIncidents(KumaRestAPIModule):
             "POST", f"incidents/create", json=incident, params=params
         )
 
-    def get(self, incident_id: str) -> Tuple[int, Union[Dict, str]]:
+    def get(self, incident_id: str) -> APIResult:
         """Gets specified alert data
         Args:
             incident_id (str): Incident INC id
         """
-        return self._make_request("GET", f"incidents/id/{incident_id}")
+        return self._make_request("GET", f"incidents/id/{self._path(incident_id)}")
 
-    def link_alert(
-        self, incident_id: str, alerts_ids: List[str]
-    ) -> Tuple[int, Union[Dict, str]]:
+    def link_alert(self, incident_id: str, alerts_ids: List[str]) -> APIResult:
         """Linking event from storage to alert
         Args:
             incident_id (str): Incident INC id
@@ -85,9 +90,7 @@ class KumaRestAPIIncidents(KumaRestAPIModule):
         json = {"incidentID": incident_id, "alertIDs": alerts_ids}
         return self._make_request("POST", f"incidents/link", json=json)
 
-    def unlink_alert(
-        self, incident_id: str, alerts_ids: List[str]
-    ) -> Tuple[int, Union[Dict, str]]:
+    def unlink_alert(self, incident_id: str, alerts_ids: List[str]) -> APIResult:
         """Linking event from storage to alert
         Args:
             incident_id (str): Incident INC id

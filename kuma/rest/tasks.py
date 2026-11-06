@@ -1,13 +1,12 @@
-from typing import List, Tuple, Union
-
-from kuma.rest._base import KumaRestAPIModule
+from kuma.rest._base import APIResult, KumaRestAPIModule
 
 
 class KumaRestAPITasks(KumaRestAPIModule):
     """Methods for Tasks."""
-    def create(self, task: dict) -> Tuple[int, Union[List, str]]:
+
+    def create(self, task: dict) -> APIResult:
         """
-        Search tenants with filter
+        Create a task from its JSON configuration
         Args:
             task (dict): PTask body JSON, see examples.
         """
